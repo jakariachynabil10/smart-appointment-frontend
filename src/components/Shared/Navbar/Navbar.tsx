@@ -16,13 +16,20 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-
   const toggleDrawer = (state: boolean) => () => setOpen(state);
 
-  const navItems = ["Home", "Providers", "Features", "About"];
+  const pathname = usePathname();
+
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "Providers", href: "/providers" },
+    { label: "Feature", href: "/feature" },
+    { label: "About", href: "/about" },
+  ];
 
   return (
     <Box
@@ -47,26 +54,43 @@ const Navbar = () => {
 
       {/* Middle - Links (Desktop) */}
       <Box className="hidden md:flex justify-center gap-8">
-        {navItems.map((item) => (
-          <Link
-            key={item}
-            href={`/${item === "Home" ? "" : item.toLowerCase()}`}
-            className="
-              relative text-gray-700 font-medium 
-              transition-all duration-300 group
-              hover:text-blue-600
-            "
-          >
-            {item}
-            <span
+        {navItems.map((item) => {
+          const isActive =
+            pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
               className="
-                absolute left-0 -bottom-1 w-0 h-0.5 
-                bg-linear-to-r from-blue-600 to-indigo-500
-                transition-all duration-300 group-hover:w-full
+                relative text-gray-700 font-medium 
+                transition-all duration-300 group
+                hover:text-blue-600
               "
-            ></span>
-          </Link>
-        ))}
+            >
+              {item.label}
+              {/* Animated Underline */}
+              {isActive ? (
+                <motion.span
+                  layoutId="underline"
+                  className="
+                    absolute left-0 -bottom-1 
+                    h-0.5 w-full 
+                    bg-linear-to-r from-blue-600 to-indigo-500
+                  "
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              ) : (
+                <span
+                  className="
+                    absolute left-0 -bottom-1 w-0 h-0.5 
+                    bg-linear-to-r from-blue-600 to-indigo-500
+                    transition-all duration-300 group-hover:w-full
+                  "
+                />
+              )}
+            </Link>
+          );
+        })}
       </Box>
 
       {/* Right - Buttons (Desktop) */}
@@ -140,23 +164,31 @@ const Navbar = () => {
 
           {/* Nav Links */}
           <List>
-            {navItems.map((item) => (
-              <ListItem
-                key={item}
-                onClick={toggleDrawer(false)}
-                component={Link}
-                href={`/${item === "Home" ? "" : item.toLowerCase()}`}
-                className="transition-all duration-200 hover:bg-blue-50 rounded-lg"
-              >
-                <ListItemText
-                  primary={item}
-                  primaryTypographyProps={{
-                    className:
-                      "text-gray-700 font-medium hover:text-blue-600 transition-all duration-300",
-                  }}
-                />
-              </ListItem>
-            ))}
+            {navItems.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(item.href));
+              return (
+                <ListItem
+                  key={item.label}
+                  onClick={toggleDrawer(false)}
+                  component={Link}
+                  href={item.href}
+                  className={`transition-all duration-200 rounded-lg ${
+                    isActive ? "bg-blue-50" : "hover:bg-blue-50"
+                  }`}
+                >
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{
+                      className: `font-medium transition-all duration-300 ${
+                        isActive ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                      }`,
+                    }}
+                  />
+                </ListItem>
+              );
+            })}
           </List>
 
           <Box className="mt-auto flex flex-col gap-3">

@@ -4,11 +4,18 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import image1 from "../../../../../public/Selection (1).png";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
 
-const MotionBox = motion(Box); // ✅ Create a motion-enabled MUI Box
+const MotionBox = motion(Box);
 
 const HeroSection = () => {
+  const controls = useAnimation();
+
+  useEffect(() => {
+    controls.start({ opacity: 1, y: 0 });
+  }, [controls]);
+
   return (
     <Box className="bg-linear-to-b from-white via-blue-50 to-white">
       <Container className="py-16 md:py-24 lg:py-32">
@@ -19,12 +26,11 @@ const HeroSection = () => {
             gap-10 lg:gap-16
           "
         >
-          {/* Left - Text Content */}
+          {/* Left - Text */}
           <MotionBox
             initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={controls}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="text-center lg:text-left max-w-xl"
           >
             <Typography
@@ -37,12 +43,10 @@ const HeroSection = () => {
               <span className="text-blue-600">QuickMeet</span>
             </Typography>
 
-            <Typography
-              className="text-neutral-600 mt-5 pt-4 text-sm sm:text-base leading-relaxed"
-            >
-              The smart appointment booking system for clients, providers,
-              and administrators. Experience seamless scheduling, smart
-              reminders, and powerful analytics — all in one platform.
+            <Typography className="text-neutral-600 mt-5 pt-4 text-sm sm:text-base leading-relaxed">
+              The smart appointment booking system for clients, providers, and
+              administrators. Experience seamless scheduling, smart reminders,
+              and powerful analytics — all in one platform.
             </Typography>
 
             <Box
@@ -84,9 +88,8 @@ const HeroSection = () => {
           {/* Right - Image */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="flex justify-center lg:justify-end w-full lg:w-1/2"
           >
             <Image
