@@ -30,7 +30,7 @@ const HeroSection = () => {
             <Typography
               fontSize={{ xs: "32px", sm: "40px", lg: "52px" }}
               fontWeight="bold"
-              className="leading-tight text-gray-900"
+              className="leading-tight! text-gray-900"
             >
               Streamline Your <br />
               Schedule with{" "}
