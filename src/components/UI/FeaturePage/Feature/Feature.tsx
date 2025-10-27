@@ -1,5 +1,5 @@
 "use client";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import {
   Dashboard,
   EventAvailable,
@@ -62,80 +62,81 @@ const features = [
   },
 ];
 
-// ✅ Define Variants with proper typing & easing function array
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15 },
+    transition: { staggerChildren: 0.1, duration: 0.4 },
   },
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1], // cubic-bezier easing (same as "easeOut")
-    },
+    transition: { duration: 0.4, ease: "easeOut" },
   },
 };
 
 const Feature = () => {
   return (
     <section className="py-16 px-4 text-center bg-white overflow-hidden">
-      <motion.h2
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-      >
-        Powerful Features Built for Efficiency
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        viewport={{ once: true }}
-        className="text-gray-500 max-w-2xl mx-auto mb-12"
-      >
-        Explore the comprehensive capabilities that make QuickMeet the ultimate
-        solution for managing your appointments.
-      </motion.p>
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
-      >
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            variants={cardVariants}
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 12px 30px rgba(79,70,229,0.15)",
-              borderColor: "#4f46e5",
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="border border-gray-200 rounded-2xl p-6 bg-white transition-all duration-300 text-left hover:border-indigo-500"
+      <AnimatePresence>
+        <motion.div
+          key="features"
+          initial="hidden"
+          animate="visible"
+          exit={{ opacity: 0, y: -20 }}
+          variants={containerVariants}
+        >
+          <motion.h2
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
-            <div className="mb-3">{feature.icon}</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {feature.title}
-            </h3>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              {feature.description}
-            </p>
+            Powerful Features Built for Efficiency
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-gray-500 max-w-2xl mx-auto mb-12"
+          >
+            Explore the comprehensive capabilities that make QuickMeet the
+            ultimate solution for managing your appointments.
+          </motion.p>
+
+          <motion.div
+            variants={containerVariants}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={cardVariants}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 12px 30px rgba(79,70,229,0.15)",
+                  borderColor: "#4f46e5",
+                }}
+                transition={{ type: "spring", stiffness: 180, damping: 15 }}
+                className="border border-gray-200 rounded-2xl p-6 bg-white text-left transition-all duration-300 hover:border-indigo-500"
+              >
+                <div className="mb-3">{feature.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
-      </motion.div>
+        </motion.div>
+      </AnimatePresence>
     </section>
   );
 };
