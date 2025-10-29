@@ -16,13 +16,27 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import useUserInfo from "@/hooks/useUserInfo";
+import toast from "react-hot-toast";
+import { logout } from "@/service/actions/logout";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const toggleDrawer = (state: boolean) => () => setOpen(state);
-
+  const router = useRouter();
   const pathname = usePathname();
+
+  const userInfo = useUserInfo();
+  console.log("User Info:", userInfo);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      logout(router);
+      toast.success("Logged out successfully!");
+      router.push("/login");
+    }
+  };
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -56,7 +70,8 @@ const Navbar = () => {
       <Box className="hidden md:flex justify-center gap-8">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.label}
@@ -93,35 +108,54 @@ const Navbar = () => {
         })}
       </Box>
 
-      {/* Right - Buttons (Desktop) */}
+      {/* Right - Auth Buttons (Desktop) */}
       <Box className="hidden md:flex gap-4">
-        <Link href="/login">
+        {userInfo?.id ? (
+          // ✅ If user is logged in → show Logout
           <Button
             variant="outlined"
             size="small"
+            onClick={handleLogout}
             className="
               transition-all duration-300 hover:scale-105 
-              border-blue-500 text-blue-600 hover:bg-blue-50
+              border-red-500 text-red-600 hover:bg-red-50
               rounded-full px-4
             "
           >
-            Log In
+            Log Out
           </Button>
-        </Link>
-        <Link href="/register">
-          <Button
-            variant="contained"
-            size="small"
-            color="primary"
-            className="
-              transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 
-              bg-linear-to-r from-blue-600 to-indigo-500 text-white
-              rounded-full px-4
-            "
-          >
-            Register
-          </Button>
-        </Link>
+        ) : (
+          // ✅ If not logged in → show Login + Register
+          <>
+            <Link href="/login">
+              <Button
+                variant="outlined"
+                size="small"
+                className="
+                  transition-all duration-300 hover:scale-105 
+                  border-blue-500 text-blue-600 hover:bg-blue-50
+                  rounded-full px-4
+                "
+              >
+                Log In
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                className="
+                  transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 
+                  bg-linear-to-r from-blue-600 to-indigo-500 text-white
+                  rounded-full px-4
+                "
+              >
+                Register
+              </Button>
+            </Link>
+          </>
+        )}
       </Box>
 
       {/* Mobile Menu Icon */}
@@ -182,7 +216,9 @@ const Navbar = () => {
                     primary={item.label}
                     primaryTypographyProps={{
                       className: `font-medium transition-all duration-300 ${
-                        isActive ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                        isActive
+                          ? "text-blue-600"
+                          : "text-gray-700 hover:text-blue-600"
                       }`,
                     }}
                   />
@@ -191,31 +227,48 @@ const Navbar = () => {
             })}
           </List>
 
+          {/* Auth Buttons (Mobile) */}
           <Box className="mt-auto flex flex-col gap-3">
-            <Link href="/login">
+            {userInfo?.id ? (
               <Button
                 fullWidth
                 variant="outlined"
+                onClick={handleLogout}
                 className="
-                  border-blue-500 text-blue-600 hover:bg-blue-50 
+                  border-red-500 text-red-600 hover:bg-red-50 
                   rounded-full
                 "
               >
-                Log In
+                Log Out
               </Button>
-            </Link>
-            <Link href="/register">
-              <Button
-                fullWidth
-                variant="contained"
-                className="
-                  bg-linear-to-r from-blue-600 to-indigo-500 
-                  hover:shadow-lg text-white rounded-full
-                "
-              >
-                Register
-              </Button>
-            </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    className="
+                      border-blue-500 text-blue-600 hover:bg-blue-50 
+                      rounded-full
+                    "
+                  >
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    className="
+                      bg-linear-to-r from-blue-600 to-indigo-500 
+                      hover:shadow-lg text-white rounded-full
+                    "
+                  >
+                    Register
+                  </Button>
+                </Link>
+              </>
+            )}
           </Box>
         </Box>
       </Drawer>

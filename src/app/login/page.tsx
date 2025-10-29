@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -9,7 +10,6 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import { motion } from "framer-motion";
-
 import { FieldValues } from "react-hook-form";
 import { useState } from "react";
 import Image from "next/image";
@@ -17,14 +17,38 @@ import SAForm from "@/components/Forms/SAForm";
 import SAInput from "@/components/Forms/SAInput";
 import loginImage from "../../../public/login.png";
 import Link from "next/link";
-// import toast from "react-hot-toast";
+import { useUseLoginMutation } from "@/redux/api/authApi";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { storeUserInfo } from "@/service/actions/setAccessToken";
 
 const LoginPage = () => {
+  const router = useRouter();
+  const [userLogin, { isLoading }] = useUseLoginMutation();
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: FieldValues) => {
     setLoading(true);
-    console.log(data);
+    try {
+      const res = await userLogin(data).unwrap();
+
+      toast.success("Login successful 🎉", {
+        position: "top-right",
+      });
+      setTimeout(() => {
+        if (res?.accessToken) {
+          storeUserInfo({ accessToken: res?.accessToken });
+          router.push("/");
+        }
+      }, 1200);
+    } catch (err: any) {
+      console.error("Login failed:", err?.data || err?.message);
+      toast.error(err?.data?.message || "Invalid email or password", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -127,7 +151,7 @@ const LoginPage = () => {
                     type="submit"
                     variant="contained"
                     fullWidth
-                    disabled={loading}
+                    disabled={loading || isLoading}
                     sx={{
                       mt: 1,
                       bgcolor: "primary.main",
@@ -138,7 +162,7 @@ const LoginPage = () => {
                       ":hover": { bgcolor: "primary.dark" },
                     }}
                   >
-                    {loading ? "Logging in..." : "Login"}
+                    {loading || isLoading ? "Logging in..." : "Login"}
                   </Button>
 
                   <Typography
