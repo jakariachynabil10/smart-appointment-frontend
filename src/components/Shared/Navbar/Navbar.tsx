@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -83,7 +84,6 @@ const Navbar = () => {
               "
             >
               {item.label}
-              {/* Animated Underline */}
               {isActive ? (
                 <motion.span
                   layoutId="underline"
@@ -108,24 +108,36 @@ const Navbar = () => {
         })}
       </Box>
 
-      {/* Right - Auth Buttons (Desktop) */}
-      <Box className="hidden md:flex gap-4">
+      {/* Right - Auth / Avatar */}
+      <Box className="hidden md:flex items-center gap-4">
         {userInfo?.id ? (
-          // ✅ If user is logged in → show Logout
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleLogout}
-            className="
-              transition-all duration-300 hover:scale-105 
-              border-red-500 text-red-600 hover:bg-red-50
-              rounded-full px-4
-            "
-          >
-            Log Out
-          </Button>
+          <>
+            {/* ✅ Avatar linking to dashboard */}
+            <IconButton
+              onClick={() => router.push("/dashboard")}
+              className="hover:scale-105 transition-transform"
+            >
+              <Avatar
+                alt={userInfo?.name || "User"}
+                src={userInfo?.image || ""}
+                sx={{ width: 38, height: 38 }}
+              />
+            </IconButton>
+
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleLogout}
+              className="
+                transition-all duration-300 hover:scale-105 
+                border-red-500 text-red-600 hover:bg-red-50
+                rounded-full px-4
+              "
+            >
+              Log Out
+            </Button>
+          </>
         ) : (
-          // ✅ If not logged in → show Login + Register
           <>
             <Link href="/login">
               <Button
@@ -230,17 +242,35 @@ const Navbar = () => {
           {/* Auth Buttons (Mobile) */}
           <Box className="mt-auto flex flex-col gap-3">
             {userInfo?.id ? (
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={handleLogout}
-                className="
-                  border-red-500 text-red-600 hover:bg-red-50 
-                  rounded-full
-                "
-              >
-                Log Out
-              </Button>
+              <>
+                {/* ✅ Avatar for mobile */}
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => {
+                    toggleDrawer(false)();
+                    router.push("/dashboard");
+                  }}
+                  className="
+                    border-blue-500 text-blue-600 hover:bg-blue-50 
+                    rounded-full
+                  "
+                >
+                  Go to Dashboard
+                </Button>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={handleLogout}
+                  className="
+                    border-red-500 text-red-600 hover:bg-red-50 
+                    rounded-full
+                  "
+                >
+                  Log Out
+                </Button>
+              </>
             ) : (
               <>
                 <Link href="/login">
