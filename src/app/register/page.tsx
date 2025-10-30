@@ -1,17 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { easeOut, motion } from "framer-motion";
-import { Box, Typography, Button, Card } from "@mui/material";
+import { Box, Typography, Button, Card, Avatar } from "@mui/material";
 import { Check, CloudUpload } from "@mui/icons-material";
 import SAInput from "@/components/Forms/SAInput";
 import SAForm from "@/components/Forms/SAForm";
 import { useState } from "react";
 import Link from "next/link";
+import { modifyPayloads } from "@/utils/modifyPayloads";
+import { registerUser } from "@/service/actions/registerUser";
+import toast from "react-hot-toast";
+import { useUseLoginMutation } from "@/redux/api/authApi";
+import { storeUserInfo } from "@/service/actions/setAccessToken";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [userLogin, { isLoading }] = useUseLoginMutation();
+  const router = useRouter();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,24 +39,39 @@ const Register = () => {
     },
   };
 
-  const handleRegister = (data: any) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("role", "user");
-    if (photoFile) formData.append("profilePhoto", photoFile);
+  // ✅ Handle Register Form Submit
+  const handleRegister = async (values: any) => {
+    try {
+      const payload = { ...values, file: photoFile };
+      const data = modifyPayloads(payload);
 
-   
+      // console.log("✅ Final FormData before sending:", data);
+
+      const res = await registerUser(data);
+      if (res?.data?.id) {
+        toast.success(res?.message);
+        const result = await userLogin({
+          email: values.email,
+          password: values.password,
+        });
+
+        if (result?.data?.accessToken) {
+          storeUserInfo({ accessToken: result?.data?.accessToken });
+          router.push("/");
+        }
+      }
+    } catch (err) {
+      console.error("❌ Register Error:", err);
+    }
   };
 
+  // ✅ Handle photo change
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setPhotoFile(file);
       setPhotoPreview(URL.createObjectURL(file));
     }
-    console.log(file);
   };
 
   return (
@@ -70,7 +94,7 @@ const Register = () => {
           transition={{ duration: 0.8 }}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Left Side - Branding */}
+            {/* LEFT SIDE - Branding */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -80,7 +104,6 @@ const Register = () => {
               <motion.div variants={itemVariants}>
                 <Typography
                   variant="h2"
-                  component="h1"
                   sx={{
                     fontWeight: "bold",
                     color: "white",
@@ -158,7 +181,7 @@ const Register = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right Side - Registration Form */}
+            {/* RIGHT SIDE - Form */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -184,7 +207,6 @@ const Register = () => {
                     <motion.div variants={itemVariants}>
                       <Typography
                         variant="h5"
-                        component="h2"
                         sx={{
                           fontWeight: "bold",
                           textAlign: "center",
@@ -196,18 +218,15 @@ const Register = () => {
                       </Typography>
                     </motion.div>
 
-                    {/* Name */}
                     <motion.div variants={itemVariants}>
                       <SAInput
                         name="name"
                         label="Full Name"
                         required
                         fullWidth
-                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                       />
                     </motion.div>
 
-                    {/* Email */}
                     <motion.div variants={itemVariants}>
                       <SAInput
                         name="email"
@@ -215,11 +234,9 @@ const Register = () => {
                         type="email"
                         required
                         fullWidth
-                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                       />
                     </motion.div>
 
-                    {/* Passwords */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <motion.div variants={itemVariants}>
                         <SAInput
@@ -228,9 +245,6 @@ const Register = () => {
                           type="password"
                           required
                           fullWidth
-                          sx={{
-                            "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                          }}
                         />
                       </motion.div>
                       <motion.div variants={itemVariants}>
@@ -240,18 +254,21 @@ const Register = () => {
                           type="password"
                           required
                           fullWidth
-                          sx={{
-                            "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                          }}
                         />
                       </motion.div>
                     </div>
 
-                    {/* Upload Photo Button ABOVE Submit */}
+                    {/* Upload Photo */}
                     <motion.div
                       variants={itemVariants}
-                      className="flex justify-center mt-2"
+                      className="flex flex-col items-center gap-4 mt-4"
                     >
+                      {photoPreview && (
+                        <Avatar
+                          src={photoPreview}
+                          sx={{ width: 80, height: 80, mb: 1 }}
+                        />
+                      )}
                       <Button
                         component="label"
                         variant="outlined"
@@ -272,13 +289,11 @@ const Register = () => {
                           hidden
                           accept="image/*"
                           type="file"
-                          name="profilePhoto"
                           onChange={handlePhotoChange}
                         />
                       </Button>
                     </motion.div>
 
-                    {/* Submit */}
                     <motion.div variants={itemVariants} className="text-center">
                       <motion.div
                         whileHover={{ scale: 1.02 }}
@@ -308,7 +323,6 @@ const Register = () => {
                       </motion.div>
                     </motion.div>
 
-                    {/* Link to Login */}
                     <motion.div variants={itemVariants}>
                       <Typography
                         variant="body2"
