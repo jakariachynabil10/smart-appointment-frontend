@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
@@ -6,12 +7,12 @@ import {
   Card,
   CardContent,
   Typography,
-  Divider,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
+  Button,
 } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -29,9 +30,15 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
+import { useGetAllUserQuery } from "@/redux/api/userApi";
 
 const AdminPage = () => {
-  // Summary Data
+  const { data: usersData, isLoading } = useGetAllUserQuery();
+
+  const handleDelete = async (id: string) => {
+    console.log(id);
+  };
+
   const summary = [
     {
       title: "Total Users",
@@ -63,7 +70,6 @@ const AdminPage = () => {
     },
   ];
 
-  // Chart Data
   const bookingsData = [
     { month: "Jan", bookings: 100, cancellations: 10 },
     { month: "Feb", bookings: 130, cancellations: 12 },
@@ -81,25 +87,59 @@ const AdminPage = () => {
 
   const COLORS = ["#3b82f6", "#a855f7", "#10b981"];
 
-  // Table Data
-  const users = [
-    { name: "Alice Johnson", email: "alice@example.com", role: "Client", status: "active", joined: "2023-01-15" },
-    { name: "Bob Smith", email: "bob@example.com", role: "Provider", status: "active", joined: "2023-02-20" },
-    { name: "Charlie Brown", email: "charlie@example.com", role: "Client", status: "suspended", joined: "2023-03-19" },
-    { name: "Diana Prince", email: "diana@example.com", role: "Admin", status: "active", joined: "2023-10-01" },
-  ];
-
   const appointments = [
-    { client: "Alice Johnson", provider: "Dr. Emily White", date: "2024-07-20", time: "10:00 AM", status: "confirmed" },
-    { client: "John Doe", provider: "Sarah Connor", date: "2024-07-21", time: "2:30 PM", status: "pending" },
-    { client: "Charlie Brown", provider: "Dr. Emily White", date: "2024-07-22", time: "9:00 AM", status: "cancelled" },
-    { client: "Eve Adams", provider: "Dr. Robert Green", date: "2024-07-23", time: "11:00 AM", status: "confirmed" },
+    {
+      client: "Alice Johnson",
+      provider: "Dr. Emily White",
+      date: "2024-07-20",
+      time: "10:00 AM",
+      status: "confirmed",
+    },
+    {
+      client: "John Doe",
+      provider: "Sarah Connor",
+      date: "2024-07-21",
+      time: "2:30 PM",
+      status: "pending",
+    },
+    {
+      client: "Charlie Brown",
+      provider: "Dr. Emily White",
+      date: "2024-07-22",
+      time: "9:00 AM",
+      status: "cancelled",
+    },
+    {
+      client: "Eve Adams",
+      provider: "Dr. Robert Green",
+      date: "2024-07-23",
+      time: "11:00 AM",
+      status: "confirmed",
+    },
   ];
 
   const suspiciousBookings = [
-    { client: "User A", provider: "Dr. X", date: "2024-07-21", reason: "Multiple same-day bookings", status: "action required" },
-    { client: "User B", provider: "Tutor Y", date: "2024-07-19", reason: "Unusual location pattern", status: "investigating" },
-    { client: "User C", provider: "Therapist Z", date: "2024-07-22", reason: "Payment mismatch", status: "resolved" },
+    {
+      client: "User A",
+      provider: "Dr. X",
+      date: "2024-07-21",
+      reason: "Multiple same-day bookings",
+      status: "action required",
+    },
+    {
+      client: "User B",
+      provider: "Tutor Y",
+      date: "2024-07-19",
+      reason: "Unusual location pattern",
+      status: "investigating",
+    },
+    {
+      client: "User C",
+      provider: "Therapist Z",
+      date: "2024-07-22",
+      reason: "Payment mismatch",
+      status: "resolved",
+    },
   ];
 
   return (
@@ -109,12 +149,12 @@ const AdminPage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {" "}
       <Box className="p-8">
-        {/* Dashboard Header */}
+        {" "}
         <Typography variant="h5" className="font-bold mb-6">
-          Admin Dashboard
+          Admin Dashboard{" "}
         </Typography>
-
         {/* Summary Cards */}
         <Box className="grid grid-cols-1 md:grid-cols-4 gap-6 my-8">
           {summary.map((item, index) => (
@@ -123,7 +163,7 @@ const AdminPage = () => {
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="shadow-md! rounded-2xl!">
+              <Card className="shadow-md rounded-2xl!">
                 <CardContent>
                   <Box className="flex items-center justify-between">
                     {item.icon}
@@ -144,11 +184,9 @@ const AdminPage = () => {
             </motion.div>
           ))}
         </Box>
-
         {/* Charts Section */}
         <Box className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Bar Chart */}
-          <Card className="shadow-md rounded-2xl">
+          <Card className="shadow-md rounded-2xl!">
             <CardContent>
               <Typography variant="subtitle1" className="font-semibold mb-4">
                 Monthly Bookings & Cancellations
@@ -161,15 +199,18 @@ const AdminPage = () => {
                     <YAxis />
                     <Tooltip />
                     <Bar dataKey="bookings" fill="#3b82f6" name="Bookings" />
-                    <Bar dataKey="cancellations" fill="#ef4444" name="Cancellations" />
+                    <Bar
+                      dataKey="cancellations"
+                      fill="#ef4444"
+                      name="Cancellations"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
             </CardContent>
           </Card>
 
-          {/* Pie Chart */}
-          <Card className="shadow-md rounded-2xl">
+          <Card className="shadow-md rounded-2xl!">
             <CardContent>
               <Typography variant="subtitle1" className="font-semibold mb-4">
                 User Roles Distribution
@@ -187,7 +228,10 @@ const AdminPage = () => {
                       label
                     >
                       {userRolesData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -197,136 +241,139 @@ const AdminPage = () => {
             </CardContent>
           </Card>
         </Box>
-
-        {/* User Management Table */}
-        <Card className="shadow-md rounded-2xl mb-8">
+        {/* User Table */}
+        <Typography variant="h6" className="font-semibold my-4!">
+          User Management
+        </Typography>
+        <Card className="shadow-md rounded-2xl! mb-8">
           <CardContent>
-            <Typography variant="h6" className="font-semibold mb-4">
-              User Management
-            </Typography>
-            <Divider />
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Joined</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((u, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{u.name}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>{u.role}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-white text-xs ${
-                          u.status === "active"
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
-                      >
-                        {u.status}
-                      </span>
+            {isLoading ? (
+              <Typography>Loading users...</Typography>
+            ) : (
+              <Table
+                sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Name
                     </TableCell>
-                    <TableCell>{u.joined}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        {/* Appointment Management Table */}
-        <Card className="shadow-md rounded-2xl mb-8">
-          <CardContent>
-            <Typography variant="h6" className="font-semibold mb-4">
-              Appointment Management
-            </Typography>
-            <Divider />
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Client</TableCell>
-                  <TableCell>Provider</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {appointments.map((a, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{a.client}</TableCell>
-                    <TableCell>{a.provider}</TableCell>
-                    <TableCell>{a.date}</TableCell>
-                    <TableCell>{a.time}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-white text-xs ${
-                          a.status === "confirmed"
-                            ? "bg-green-500"
-                            : a.status === "pending"
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        }`}
-                      >
-                        {a.status}
-                      </span>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Email
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Role
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Joined
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Action
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        {/* Suspicious Bookings Table */}
-        <Card className="shadow-md rounded-2xl mb-10">
-          <CardContent>
-            <Typography variant="h6" className="font-semibold mb-4">
-              Suspicious Bookings
-            </Typography>
-            <Divider />
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Client</TableCell>
-                  <TableCell>Provider</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Reason</TableCell>
-                  <TableCell>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {suspiciousBookings.map((s, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{s.client}</TableCell>
-                    <TableCell>{s.provider}</TableCell>
-                    <TableCell>{s.date}</TableCell>
-                    <TableCell>{s.reason}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-white text-xs ${
-                          s.status === "resolved"
-                            ? "bg-green-500"
-                            : s.status === "action required"
-                            ? "bg-red-500"
-                            : "bg-yellow-500"
-                        }`}
+                </TableHead>
+                <TableBody>
+                  {usersData
+                    ?.filter((u: any) => u.role !== "SUPERADMIN")
+                    .map((user: any, i: any) => (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          border: "none",
+                          backgroundColor: "white",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                          borderRadius: "12px",
+                          "&:hover": { backgroundColor: "#f9fafb" },
+                        }}
                       >
-                        {s.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.name}
+                        </TableCell>
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.email}
+                        </TableCell>
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.role}
+                        </TableCell>
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.createdAt}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDelete(user.id)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
+        {/* Static tables */}
+        {[
+          {
+            title: "Appointment Management",
+            data: appointments,
+            columns: ["Client", "Provider", "Date", "Time", "Status"],
+          },
+          {
+            title: "Suspicious Bookings",
+            data: suspiciousBookings,
+            columns: ["Client", "Provider", "Date", "Reason", "Status"],
+          },
+        ].map((table, tIndex) => (
+          <React.Fragment key={tIndex}>
+            <Typography variant="h6" className="font-semibold my-4!">
+              {table.title}
+            </Typography>
+            <Card className="shadow-md rounded-2xl! mb-8">
+              <CardContent>
+                <Table
+                  sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      {table.columns.map((col, i) => (
+                        <TableCell
+                          key={i}
+                          sx={{ border: "none", fontWeight: 600 }}
+                        >
+                          {col}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {table.data.map((row, i) => (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          border: "none",
+                          backgroundColor: "white",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                          borderRadius: "12px",
+                          "&:hover": { backgroundColor: "#f9fafb" },
+                        }}
+                      >
+                        {Object.values(row).map((val, j) => (
+                          <TableCell key={j} sx={{ border: "none", py: 2 }}>
+                            {val}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </React.Fragment>
+        ))}
       </Box>
     </motion.div>
   );
