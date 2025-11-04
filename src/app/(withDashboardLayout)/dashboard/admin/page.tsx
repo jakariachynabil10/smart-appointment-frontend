@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Box,
@@ -31,44 +31,58 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useGetAllUserQuery } from "@/redux/api/userApi";
+import { useGetAllAppointmentQuery } from "@/redux/api/appointmentApi";
 
 const AdminPage = () => {
-  const { data: usersData, isLoading } = useGetAllUserQuery();
+  const { data: usersData, isLoading: isUserLoading } = useGetAllUserQuery();
+  const { data: appointmentData, isLoading: isAppointmentLoading } =
+    useGetAllAppointmentQuery();
 
   const handleDelete = async (id: string) => {
-    console.log(id);
+    console.log("Delete user with ID:", id);
   };
 
-  const summary = [
-    {
-      title: "Total Users",
-      value: "1,245",
-      change: "+10.5%",
-      color: "text-green-500",
-      icon: <PeopleIcon fontSize="large" className="text-blue-600" />,
-    },
-    {
-      title: "Total Appointments",
-      value: "789",
-      change: "+5.2%",
-      color: "text-green-500",
-      icon: <CalendarMonthIcon fontSize="large" className="text-purple-600" />,
-    },
-    {
-      title: "Pending Requests",
-      value: "23",
-      change: "-2.1%",
-      color: "text-red-500",
-      icon: <PendingActionsIcon fontSize="large" className="text-yellow-600" />,
-    },
-    {
-      title: "Revenue (Monthly)",
-      value: "$12,450",
-      change: "+18.5%",
-      color: "text-green-500",
-      icon: <MonetizationOnIcon fontSize="large" className="text-green-600" />,
-    },
-  ];
+  const summary = useMemo(
+    () => [
+      {
+        title: "Total Users",
+        value: usersData ? usersData.length : 0,
+        change: "+10.5%",
+        color: "text-green-500",
+        icon: <PeopleIcon fontSize="large" className="text-blue-600" />,
+      },
+      {
+        title: "Total Appointments",
+        value: appointmentData ? appointmentData.length : 0,
+        change: "+5.2%",
+        color: "text-green-500",
+        icon: (
+          <CalendarMonthIcon fontSize="large" className="text-purple-600" />
+        ),
+      },
+      {
+        title: "Pending Requests",
+        value:
+          appointmentData?.filter((a: any) => a.status === "pending").length ||
+          0,
+        change: "-2.1%",
+        color: "text-red-500",
+        icon: (
+          <PendingActionsIcon fontSize="large" className="text-yellow-600" />
+        ),
+      },
+      {
+        title: "Revenue (Monthly)",
+        value: "$12,450",
+        change: "+18.5%",
+        color: "text-green-500",
+        icon: (
+          <MonetizationOnIcon fontSize="large" className="text-green-600" />
+        ),
+      },
+    ],
+    [usersData, appointmentData]
+  );
 
   const bookingsData = [
     { month: "Jan", bookings: 100, cancellations: 10 },
@@ -87,61 +101,6 @@ const AdminPage = () => {
 
   const COLORS = ["#3b82f6", "#a855f7", "#10b981"];
 
-  const appointments = [
-    {
-      client: "Alice Johnson",
-      provider: "Dr. Emily White",
-      date: "2024-07-20",
-      time: "10:00 AM",
-      status: "confirmed",
-    },
-    {
-      client: "John Doe",
-      provider: "Sarah Connor",
-      date: "2024-07-21",
-      time: "2:30 PM",
-      status: "pending",
-    },
-    {
-      client: "Charlie Brown",
-      provider: "Dr. Emily White",
-      date: "2024-07-22",
-      time: "9:00 AM",
-      status: "cancelled",
-    },
-    {
-      client: "Eve Adams",
-      provider: "Dr. Robert Green",
-      date: "2024-07-23",
-      time: "11:00 AM",
-      status: "confirmed",
-    },
-  ];
-
-  const suspiciousBookings = [
-    {
-      client: "User A",
-      provider: "Dr. X",
-      date: "2024-07-21",
-      reason: "Multiple same-day bookings",
-      status: "action required",
-    },
-    {
-      client: "User B",
-      provider: "Tutor Y",
-      date: "2024-07-19",
-      reason: "Unusual location pattern",
-      status: "investigating",
-    },
-    {
-      client: "User C",
-      provider: "Therapist Z",
-      date: "2024-07-22",
-      reason: "Payment mismatch",
-      status: "resolved",
-    },
-  ];
-
   return (
     <motion.div
       className="bg-gray-50 min-h-screen overflow-y-auto"
@@ -149,12 +108,11 @@ const AdminPage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {" "}
       <Box className="p-8">
-        {" "}
         <Typography variant="h5" className="font-bold mb-6">
-          Admin Dashboard{" "}
+          Admin Dashboard
         </Typography>
+
         {/* Summary Cards */}
         <Box className="grid grid-cols-1 md:grid-cols-4 gap-6 my-8">
           {summary.map((item, index) => (
@@ -184,6 +142,7 @@ const AdminPage = () => {
             </motion.div>
           ))}
         </Box>
+
         {/* Charts Section */}
         <Box className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="shadow-md rounded-2xl!">
@@ -241,13 +200,14 @@ const AdminPage = () => {
             </CardContent>
           </Card>
         </Box>
-        {/* User Table */}
+
+        {/* User Management Table */}
         <Typography variant="h6" className="font-semibold my-4!">
           User Management
         </Typography>
         <Card className="shadow-md rounded-2xl! mb-8">
           <CardContent>
-            {isLoading ? (
+            {isUserLoading ? (
               <Typography>Loading users...</Typography>
             ) : (
               <Table
@@ -296,7 +256,7 @@ const AdminPage = () => {
                           {user?.role}
                         </TableCell>
                         <TableCell sx={{ border: "none", py: 2 }}>
-                          {user?.createdAt}
+                          {new Date(user?.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
                           <Button
@@ -315,65 +275,76 @@ const AdminPage = () => {
             )}
           </CardContent>
         </Card>
-        {/* Static tables */}
-        {[
-          {
-            title: "Appointment Management",
-            data: appointments,
-            columns: ["Client", "Provider", "Date", "Time", "Status"],
-          },
-          {
-            title: "Suspicious Bookings",
-            data: suspiciousBookings,
-            columns: ["Client", "Provider", "Date", "Reason", "Status"],
-          },
-        ].map((table, tIndex) => (
-          <React.Fragment key={tIndex}>
-            <Typography variant="h6" className="font-semibold my-4!">
-              {table.title}
-            </Typography>
-            <Card className="shadow-md rounded-2xl! mb-8">
-              <CardContent>
-                <Table
-                  sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
-                >
-                  <TableHead>
-                    <TableRow>
-                      {table.columns.map((col, i) => (
-                        <TableCell
-                          key={i}
-                          sx={{ border: "none", fontWeight: 600 }}
-                        >
-                          {col}
-                        </TableCell>
-                      ))}
+
+        {/* ✅ Appointment Management Table (Dynamic) */}
+        <Typography variant="h6" className="font-semibold my-4!">
+          Appointment Management
+        </Typography>
+        <Card className="shadow-md rounded-2xl! mb-8">
+          <CardContent>
+            {isAppointmentLoading ? (
+              <Typography>Loading appointments...</Typography>
+            ) : appointmentData?.length > 0 ? (
+              <Table
+                sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Client</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Provider</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Start Time</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>End Time</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {appointmentData.map((appt: any, i: number) => (
+                    <TableRow
+                      key={i}
+                      sx={{
+                        backgroundColor: "white",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                        borderRadius: "12px",
+                        "&:hover": { backgroundColor: "#f9fafb" },
+                      }}
+                    >
+                      <TableCell sx={{ py: 2 }}>
+                        {appt?.user?.name || "Unknown"}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        {appt?.specialist?.name || "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        {new Date(appt?.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        {appt?.startTime
+                          ? new Date(appt.startTime).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        {appt?.endTime
+                          ? new Date(appt.endTime).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
+                      </TableCell>
+
+                      <TableCell sx={{ py: 2 }}>{appt?.status}</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {table.data.map((row, i) => (
-                      <TableRow
-                        key={i}
-                        sx={{
-                          border: "none",
-                          backgroundColor: "white",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                          borderRadius: "12px",
-                          "&:hover": { backgroundColor: "#f9fafb" },
-                        }}
-                      >
-                        {Object.values(row).map((val, j) => (
-                          <TableCell key={j} sx={{ border: "none", py: 2 }}>
-                            {val}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </React.Fragment>
-        ))}
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Typography>No appointments found.</Typography>
+            )}
+          </CardContent>
+        </Card>
       </Box>
     </motion.div>
   );

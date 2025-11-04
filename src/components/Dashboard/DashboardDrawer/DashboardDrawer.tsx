@@ -41,6 +41,7 @@ const adminMenu = [
   { label: "User Management", icon: <PeopleIcon />, path: "/dashboard/admin/users" },
   { label: "Appointment Management", icon: <CalendarMonthIcon />, path: "/dashboard/admin/appointments" },
   { label: "Analytics Overview", icon: <BarChartIcon />, path: "/dashboard/admin/analytics" },
+  { label: "Create Specialist", icon: <PeopleIcon />, path: "/dashboard/admin/create-specialist" },
 ];
 
 const providerMenu = [

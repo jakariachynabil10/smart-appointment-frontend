@@ -1,34 +1,54 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TagTypes } from "../tag-types";
 import { baseApi } from "./baseApi";
 
-export const appoitnmentApi = baseApi.injectEndpoints({
-  endpoints : (build) => ({
-    createAppointment : build.mutation({
-        query : (data) => ({
-            url : "/appointment/create-appointment",
-            method : "POST",
-            data
-        }),
-        invalidatesTags : [TagTypes.user]
+export const appointmentApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    // ✅ Create Appointment (User only)
+    createAppointment: build.mutation({
+      query: (data) => ({
+        url: "/appoinment/create-appointment",
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [TagTypes.user],
     }),
-    getUserAppointment : build.query({
-        query : (userId) => ({
-            url : `/appointment/${userId}`,
-            method : "GET"
-        }),
-        providesTags : [TagTypes.user]
+
+    // ✅ Get Appointments for a specific user
+    getUserAppointment: build.query({
+      query: (userId) => ({
+        url: `/appoinment/${userId}`,
+        method: "GET",
+      }),
+      providesTags: [TagTypes.user],
     }),
-    updateAppointmentStatus : build.mutation({
-        query : ({id, status}) => ({
-              url : `/appointment/${id}`,
-              method : "PATCH",
-              data : {status},
-        }),
-        invalidatesTags : [TagTypes.user]
-    })
-  })
-})
 
+    // ✅ Update appointment status (Admin/Specialist only)
+    updateAppointmentStatus: build.mutation({
+      query: ({ id, status }) => ({
+        url: `/appoinment/${id}`,
+        method: "PATCH",
+        data: { status },
+      }),
+      invalidatesTags: [TagTypes.user],
+    }),
 
+    // ✅ Get all appointments (Admin & Superadmin only)
+    getAllAppointment: build.query<any, void>({
+      query: () => ({
+        url: "/appoinment",
+        method: "GET",
+      }),
+      providesTags: [TagTypes.admin, TagTypes.superadmin],
+    }),
+  }),
 
-export const {useCreateAppointmentMutation, useGetUserAppointmentQuery, useUpdateAppointmentStatusMutation} = appoitnmentApi
+  overrideExisting: false,
+});
+
+export const {
+  useCreateAppointmentMutation,
+  useGetUserAppointmentQuery,
+  useUpdateAppointmentStatusMutation,
+  useGetAllAppointmentQuery,
+} = appointmentApi;
