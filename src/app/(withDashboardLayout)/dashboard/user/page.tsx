@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
@@ -20,6 +22,7 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import useUserInfo from "@/hooks/useUserInfo";
+import { useGetSingleUserQuery } from "@/redux/api/userApi";
 
 const timeSlots = [
   "09:00 AM",
@@ -30,13 +33,6 @@ const timeSlots = [
   "03:00 PM",
   "04:00 PM",
   "05:00 PM",
-];
-
-const stats = [
-  { label: "Upcoming", value: 3, icon: <EventAvailableIcon color="primary" /> },
-  { label: "Completed", value: 12, icon: <CheckCircleIcon color="success" /> },
-  { label: "Cancelled", value: 1, icon: <CancelIcon color="error" /> },
-  { label: "Pending", value: 2, icon: <PendingActionsIcon color="warning" /> },
 ];
 
 const upcoming = [
@@ -59,12 +55,37 @@ const notifications = [
 ];
 
 export default function UserDashboard() {
-  const userInfo = useUserInfo();
+  // const userInfo = useUserInfo();
+  const { data: userInfo, isLoading } = useGetSingleUserQuery();
+  console.log(userInfo);
+
+  const appointments = userInfo?.appointments || [];
+
+  const stats = [
+    {
+      label: "Upcoming",
+      value: appointments.length || 0,
+      icon: <EventAvailableIcon color="primary" />,
+    },
+    {
+      label: "Completed",
+      value: appointments.filter((a: any) => a.status === "COMPLETED").length,
+      icon: <CheckCircleIcon color="success" />,
+    },
+    {
+      label: "Cancelled",
+      value: appointments.filter((a: any) => a.status === "CANCELLED").length,
+      icon: <CancelIcon color="error" />,
+    },
+    {
+      label: "Pending",
+      value: appointments.filter((a: any) => a.status === "PENDING").length,
+      icon: <PendingActionsIcon color="warning" />,
+    },
+  ];
 
   return (
-    <Box
-      className="p-4 sm:p-6 md:p-8 min-h-screen space-y-8 rounded-xl"
-    >
+    <Box className="p-4 sm:p-6 md:p-8 min-h-screen space-y-8 rounded-xl">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -82,7 +103,7 @@ export default function UserDashboard() {
               }}
               className="text-2xl md:text-3xl"
             >
-              Welcome back, {userInfo?.name || "Sarah"} 👋
+              Welcome back, {userInfo?.name} 👋
             </Typography>
             <Typography variant="body2" sx={{ color: "#1565c0" }}>
               Manage and track your appointments efficiently.
@@ -94,7 +115,11 @@ export default function UserDashboard() {
       {/* Stats */}
       <Box className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {stats.map((item, i) => (
-          <motion.div key={i} whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
+          <motion.div
+            key={i}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.3 }}
+          >
             <Card
               elevation={6}
               className="rounded-2xl!"
@@ -227,42 +252,110 @@ export default function UserDashboard() {
               </Box>
               <Divider className="mb-3" />
 
-              {upcoming.map((item, i) => (
-                <Box
-                  key={i}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 p-3 rounded-xl hover:bg-blue-50 transition"
-                >
-                  <Box className="flex items-center gap-3">
-                    <Avatar
-                      src={item.avatar}
-                      alt={item.title}
-                      sx={{ width: 48, height: 48 }}
-                    />
-                    <Box>
-                      <Typography fontWeight={600} variant="body2">
-                        {item.title}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {item.date}
-                      </Typography>
+              {/* ✅ Dynamic Appointments */}
+              {appointments
+                .filter(
+                  (a: any) => a.status === "PENDING" || a.status === "CONFIRMED"
+                )
+                .map((a: any, i: number) => {
+                  const date = new Date(a.date);
+                  const start = new Date(a.startTime);
+                  const end = new Date(a.endTime);
+
+                  return (
+                    <Box
+                      key={i}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 p-3 rounded-xl hover:bg-blue-50 transition"
+                    >
+                      {/* Left side: specialist info */}
+                      <Box className="flex items-center gap-3">
+                        <Avatar
+                          src={
+                            a.specialist?.profilePhoto ||
+                            "https://via.placeholder.com/48"
+                          }
+                          alt={a.specialist?.name || "Specialist"}
+                          sx={{ width: 48, height: 48 }}
+                        />
+                        <Box>
+                          <Typography fontWeight={600} variant="body2">
+                            {a.specialist?.name || "Unknown Specialist"} —{" "}
+                            {a.specialist?.specialty || "Service"}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {date.toLocaleDateString(undefined, {
+                              weekday: "short",
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}{" "}
+                            •{" "}
+                            {start.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                            -{" "}
+                            {end.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Right side: status button */}
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: "10px",
+                          fontSize: "0.75rem",
+                          borderColor:
+                            a.status === "CONFIRMED"
+                              ? "#2e7d32"
+                              : a.status === "PENDING"
+                              ? "#ff9800"
+                              : "#1976d2",
+                          color:
+                            a.status === "CONFIRMED"
+                              ? "#2e7d32"
+                              : a.status === "PENDING"
+                              ? "#ff9800"
+                              : "#1976d2",
+                          "&:hover": {
+                            bgcolor:
+                              a.status === "CONFIRMED"
+                                ? "#2e7d32"
+                                : a.status === "PENDING"
+                                ? "#ff9800"
+                                : "#1976d2",
+                            color: "#fff",
+                          },
+                        }}
+                      >
+                        {a.status}
+                      </Button>
                     </Box>
-                  </Box>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      textTransform: "none",
-                      borderRadius: "10px",
-                      fontSize: "0.75rem",
-                      borderColor: "#1976d2",
-                      color: "#1976d2",
-                      "&:hover": { bgcolor: "#1976d2", color: "#fff" },
-                    }}
-                  >
-                    Details
-                  </Button>
-                </Box>
-              ))}
+                  );
+                })}
+
+              {/* 🟡 Empty State */}
+              {appointments.filter(
+                (a: any) =>
+                  a.status === "PENDING" ||
+                  a.status === "CONFIRMED" ||
+                  a.status === "UPCOMING"
+              ).length === 0 && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ py: 2 }}
+                >
+                  No upcoming appointments found.
+                </Typography>
+              )}
             </CardContent>
           </Card>
 

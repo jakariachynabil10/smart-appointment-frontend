@@ -16,7 +16,14 @@ export const userApi = baseApi.injectEndpoints({
         TagTypes.provider,
       ],
     }),
+     getSingleUser: build.query<any,void>({
+      query: () => ({
+        url: "/user/me",
+        method: "GET",
+      }),
+      providesTags: [TagTypes.user],
+    }),
   }),
 });
 
-export const { useGetAllUserQuery } = userApi;
+export const { useGetAllUserQuery, useGetSingleUserQuery } = userApi;

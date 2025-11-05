@@ -29,6 +29,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import useUserInfo from "@/hooks/useUserInfo";
 import { logout } from "@/service/actions/logout";
+import { useGetSingleUserQuery } from "@/redux/api/userApi";
 
 const userMenu = [
   { label: "Client Dashboard", icon: <DashboardIcon />, path: "/dashboard/user" },
@@ -59,6 +60,9 @@ export default function DashboardDrawer({ children }: { children: React.ReactNod
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
+
+
+  const {data : user, isLoading} = useGetSingleUserQuery()
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -167,13 +171,13 @@ export default function DashboardDrawer({ children }: { children: React.ReactNod
 
           {/* Dynamic Avatar */}
           <Avatar
-            src={userInfo?.image || ""}
-            alt={userInfo?.name || "User"}
+            src={user?.profilePhoto || ""}
+            alt={user?.profilePhoto || "User"}
             sx={{
               width: 50,
               height: 50,
               fontSize: 20,
-              bgcolor: userInfo?.image ? "transparent" : "#3b82f6",
+              bgcolor: user?.profilePhoto ? "transparent" : "#3b82f6",
               color: "white",
             }}
           >
