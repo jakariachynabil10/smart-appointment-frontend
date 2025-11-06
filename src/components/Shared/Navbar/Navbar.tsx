@@ -18,9 +18,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import useUserInfo from "@/hooks/useUserInfo";
+
 import toast from "react-hot-toast";
 import { logout } from "@/service/actions/logout";
+import { useGetSingleUserQuery } from "@/redux/api/userApi";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -28,8 +29,9 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const userInfo = useUserInfo();
-  console.log("User Info:", userInfo);
+  const {data : userInfo, isLoading} = useGetSingleUserQuery();
+  
+  
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -119,7 +121,7 @@ const Navbar = () => {
             >
               <Avatar
                 alt={userInfo?.name || "User"}
-                src={userInfo?.image || ""}
+                src={userInfo?.profilePhoto || ""}
                 sx={{ width: 38, height: 38 }}
               />
             </IconButton>

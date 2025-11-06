@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,8 +31,10 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useUserInfo from "@/hooks/useUserInfo";
 import { logout } from "@/service/actions/logout";
 import { useGetSingleUserQuery } from "@/redux/api/userApi";
+import { Home } from "@mui/icons-material";
 
 const userMenu = [
+  { label: "Home", icon: <Home />, path: "/" },
   { label: "Client Dashboard", icon: <DashboardIcon />, path: "/dashboard/user" },
   { label: "My Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/user/appointments" },
   { label: "Notifications", icon: <NotificationsIcon />, path: "/dashboard/user/notifications" },
@@ -181,7 +184,7 @@ export default function DashboardDrawer({ children }: { children: React.ReactNod
               color: "white",
             }}
           >
-            {!userInfo?.image && getInitials(userInfo?.name || "User")}
+            {!user?.profilePhoto && getInitials(user?.name || "User")}
           </Avatar>
         </Box>
 
