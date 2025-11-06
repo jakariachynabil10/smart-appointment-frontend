@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 
