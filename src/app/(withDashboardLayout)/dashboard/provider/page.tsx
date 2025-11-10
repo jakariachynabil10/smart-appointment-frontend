@@ -167,7 +167,7 @@ const ProviderPage = () => {
 
             {/* View All Button */}
             <Box className="flex justify-center p-3 mt-3">
-              <Link href="/dashboard/provider/today">
+              <Link href="/dashboard/provider/todayAppointment">
                 <Button size="medium" variant="outlined">
                   View All
                 </Button>

@@ -24,7 +24,7 @@ export const appointmentApi = baseApi.injectEndpoints({
     }),
 
     // ✅ Update appointment status (Admin/Specialist only)
-    updateAppointmentStatus: build.mutation<any,void>({
+    updateAppointmentStatus: build.mutation<any,{ id: string; status: string }>({
       query: ({ id, status } : any) => ({
         url: `/appoinment/${id}`,
         method: "PATCH",

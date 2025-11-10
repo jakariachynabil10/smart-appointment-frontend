@@ -50,10 +50,8 @@ const adminMenu = [
 
 const providerMenu = [
   { label: "Provider Dashboard", icon: <DashboardIcon />, path: "/dashboard/provider" },
-  { label: "Today's Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/provider/today" },
-  { label: "Appointment Requests", icon: <EmailIcon />, path: "/dashboard/provider/requests" },
-  { label: "Schedule", icon: <AccessTimeIcon />, path: "/dashboard/provider/schedule" },
-  { label: "Analytics", icon: <BarChartIcon />, path: "/dashboard/provider/analytics" },
+  { label: "Today's Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/provider/todayAppointment" },
+  { label: "Appointment Requests", icon: <EmailIcon />, path: "/dashboard/provider/AppointmentRequest" },
 ];
 
 export default function DashboardDrawer({ children }: { children: React.ReactNode }) {
