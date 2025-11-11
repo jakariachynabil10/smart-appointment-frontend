@@ -23,7 +23,14 @@ export const userApi = baseApi.injectEndpoints({
       }),
       providesTags: [TagTypes.user],
     }),
+    deleteUserById : build.mutation({
+      query : (id : string) => ({
+        url : `/user/${id}`,
+        method : "DELETE"
+      }),
+      invalidatesTags : [TagTypes.admin, TagTypes.superadmin]
+    })
   }),
 });
 
-export const { useGetAllUserQuery, useGetSingleUserQuery } = userApi;
+export const { useGetAllUserQuery, useGetSingleUserQuery, useDeleteUserByIdMutation } = userApi;

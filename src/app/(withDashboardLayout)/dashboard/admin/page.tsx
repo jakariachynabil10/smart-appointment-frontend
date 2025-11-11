@@ -13,11 +13,12 @@ import {
   TableCell,
   TableBody,
   Button,
+  Chip,
 } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   BarChart,
   Bar,
@@ -30,16 +31,28 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
-import { useGetAllUserQuery } from "@/redux/api/userApi";
+import {
+  useDeleteUserByIdMutation,
+  useGetAllUserQuery,
+} from "@/redux/api/userApi";
 import { useGetAllAppointmentQuery } from "@/redux/api/appointmentApi";
 
 const AdminPage = () => {
   const { data: usersData, isLoading: isUserLoading } = useGetAllUserQuery();
   const { data: appointmentData, isLoading: isAppointmentLoading } =
     useGetAllAppointmentQuery();
+  const [deleteUserById, { isLoading: isDeleting }] =
+    useDeleteUserByIdMutation();
 
   const handleDelete = async (id: string) => {
-    console.log("Delete user with ID:", id);
+    try {
+      const result = await deleteUserById(id).unwrap();
+      alert("✅ User deleted successfully!");
+      console.log(result);
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      alert("❌ Failed to delete user. Please try again.");
+    }
   };
 
   const summary = useMemo(
@@ -47,14 +60,14 @@ const AdminPage = () => {
       {
         title: "Total Users",
         value: usersData ? usersData.length : 0,
-        change: "+10.5%",
+        // change: "+10.5%",
         color: "text-green-500",
         icon: <PeopleIcon fontSize="large" className="text-blue-600" />,
       },
       {
         title: "Total Appointments",
         value: appointmentData ? appointmentData.length : 0,
-        change: "+5.2%",
+        // change: "+5.2%",
         color: "text-green-500",
         icon: (
           <CalendarMonthIcon fontSize="large" className="text-purple-600" />
@@ -63,42 +76,93 @@ const AdminPage = () => {
       {
         title: "Pending Requests",
         value:
-          appointmentData?.filter((a: any) => a.status === "pending").length ||
+          appointmentData?.filter((a: any) => a.status === "PENDING").length ||
           0,
-        change: "-2.1%",
+        // change: "-2.1%",
         color: "text-red-500",
         icon: (
           <PendingActionsIcon fontSize="large" className="text-yellow-600" />
         ),
       },
       {
-        title: "Revenue (Monthly)",
-        value: "$12,450",
-        change: "+18.5%",
+        title: "Completed Requests",
+        value:
+          appointmentData?.filter((a: any) => a.status === "COMPLETED")
+            .length || 0,
+        // change: "+12.3%",
         color: "text-green-500",
-        icon: (
-          <MonetizationOnIcon fontSize="large" className="text-green-600" />
-        ),
+        icon: <CheckCircleIcon fontSize="large" className="text-green-600" />,
       },
     ],
     [usersData, appointmentData]
   );
 
-  const bookingsData = [
-    { month: "Jan", bookings: 100, cancellations: 10 },
-    { month: "Feb", bookings: 130, cancellations: 12 },
-    { month: "Mar", bookings: 160, cancellations: 8 },
-    { month: "Apr", bookings: 180, cancellations: 14 },
-    { month: "May", bookings: 210, cancellations: 11 },
-    { month: "Jun", bookings: 240, cancellations: 9 },
-  ];
+  const bookingsData = useMemo(() => {
+    if (!appointmentData) return [];
 
-  const userRolesData = [
-    { name: "Clients", value: 90 },
-    { name: "Providers", value: 50 },
-    { name: "Admins", value: 1 },
-  ];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
+    const monthlyStats: Record<
+      string,
+      { bookings: number; cancellations: number }
+    > = {};
+
+    appointmentData.forEach((appt: any) => {
+      const month = monthNames[new Date(appt.date).getMonth()];
+
+      if (!monthlyStats[month]) {
+        monthlyStats[month] = { bookings: 0, cancellations: 0 };
+      }
+
+      // Every appointment counts as a booking
+      monthlyStats[month].bookings += 1;
+
+      // Count cancellations
+      if (appt.status === "CANCELLED") {
+        monthlyStats[month].cancellations += 1;
+      }
+    });
+
+    // Convert to array format for recharts
+    return monthNames.map((month) => ({
+      month,
+      bookings: monthlyStats[month]?.bookings || 0,
+      cancellations: monthlyStats[month]?.cancellations || 0,
+    }));
+  }, [appointmentData]);
+
+  const userRolesData = useMemo(() => {
+    if (!usersData) return [];
+
+    const roleCounts = usersData.reduce(
+      (acc: any, user: any) => {
+        if (user.role === "USER") acc.clients += 1;
+        else if (user.role === "SPECIALIST") acc.providers += 1;
+        else if (user.role === "ADMIN") acc.admins += 1;
+        return acc;
+      },
+      { clients: 0, providers: 0, admins: 0 }
+    );
+
+    return [
+      { name: "Clients", value: roleCounts.clients },
+      { name: "Providers", value: roleCounts.providers },
+      { name: "Admins", value: roleCounts.admins },
+    ];
+  }, [usersData]);
   const COLORS = ["#3b82f6", "#a855f7", "#10b981"];
 
   return (
@@ -132,9 +196,9 @@ const AdminPage = () => {
                       <Typography variant="h6" className="font-bold mt-1">
                         {item.value}
                       </Typography>
-                      <Typography className={`text-sm mt-1 ${item.color}`}>
+                      {/* <Typography className={`text-sm mt-1 ${item.color}`}>
                         {item.change} from last month
-                      </Typography>
+                      </Typography> */}
                     </Box>
                   </Box>
                 </CardContent>
@@ -263,9 +327,10 @@ const AdminPage = () => {
                             variant="contained"
                             color="error"
                             size="small"
+                            disabled={isDeleting}
                             onClick={() => handleDelete(user.id)}
                           >
-                            Delete
+                            {isDeleting ? "Deleting..." : "Delete"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -299,45 +364,87 @@ const AdminPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {appointmentData.map((appt: any, i: number) => (
-                    <TableRow
-                      key={i}
-                      sx={{
-                        backgroundColor: "white",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                        borderRadius: "12px",
-                        "&:hover": { backgroundColor: "#f9fafb" },
-                      }}
-                    >
-                      <TableCell sx={{ py: 2 }}>
-                        {appt?.user?.name || "Unknown"}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        {appt?.specialist?.name || "N/A"}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        {new Date(appt?.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        {appt?.startTime
-                          ? new Date(appt.startTime).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        {appt?.endTime
-                          ? new Date(appt.endTime).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </TableCell>
+                  {appointmentData.map((appt: any, i: number) => {
+                    let statusColor = "default";
+                    let statusLabel = appt?.status || "UNKNOWN";
 
-                      <TableCell sx={{ py: 2 }}>{appt?.status}</TableCell>
-                    </TableRow>
-                  ))}
+                    // Assign color & label styles based on status
+                    switch (appt?.status) {
+                      case "PENDING":
+                        statusColor = "warning";
+                        statusLabel = "Pending";
+                        break;
+                      case "COMPLETED":
+                        statusColor = "success";
+                        statusLabel = "Completed";
+                        break;
+                      case "CANCELLED":
+                        statusColor = "error";
+                        statusLabel = "Cancelled";
+                        break;
+                      case "CONFIRMED":
+                        statusColor = "info";
+                        statusLabel = "Confirmed";
+                        break;
+                      default:
+                        statusColor = "default";
+                        statusLabel = appt?.status || "Unknown";
+                    }
+
+                    return (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          backgroundColor: "white",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                          borderRadius: "12px",
+                          "&:hover": { backgroundColor: "#f9fafb" },
+                        }}
+                      >
+                        <TableCell sx={{ py: 2 }}>
+                          {appt?.user?.name || "Unknown"}
+                        </TableCell>
+                        <TableCell sx={{ py: 2 }}>
+                          {appt?.specialist?.name || "N/A"}
+                        </TableCell>
+                        <TableCell sx={{ py: 2 }}>
+                          {new Date(appt?.date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell sx={{ py: 2 }}>
+                          {appt?.startTime
+                            ? new Date(appt.startTime).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell sx={{ py: 2 }}>
+                          {appt?.endTime
+                            ? new Date(appt.endTime).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "N/A"}
+                        </TableCell>
+
+                        {/* ✅ Stylish Status Chip */}
+                        <TableCell sx={{ py: 2 }}>
+                          <Chip
+                            label={statusLabel}
+                            color={statusColor as any}
+                            variant="outlined"
+                            sx={{
+                              fontWeight: "bold",
+                              borderRadius: "8px",
+                              fontSize: "0.8rem",
+                              px: 1,
+                              textTransform: "capitalize",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (
