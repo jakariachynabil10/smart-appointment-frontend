@@ -9,7 +9,7 @@ export const serviceApi = baseApi.injectEndpoints({
       query: (data) => ({
         url: "/service/create-service",
         method: "POST",
-        body: data,
+         data,
       }),
       invalidatesTags: [TagTypes.superadmin, TagTypes.admin], // optional, if you use tags
     }),
@@ -22,7 +22,14 @@ export const serviceApi = baseApi.injectEndpoints({
       }),
       providesTags: [TagTypes.user], // optional
     }),
+    getServiceBySpecialistId : build.query<any, string>({
+      query : (specialistId) => ({
+        url : `/service/${specialistId}`,
+        method : "GET"
+      }),
+      providesTags : [TagTypes.provider, TagTypes.user]
+    })
   }),
 });
 
-export const { useCreateServiceMutation, useGetAllServicesQuery } = serviceApi;
+export const { useCreateServiceMutation, useGetAllServicesQuery , useGetServiceBySpecialistIdQuery} = serviceApi;

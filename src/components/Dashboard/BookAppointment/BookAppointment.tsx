@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useMemo } from "react";
@@ -22,10 +21,9 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { motion } from "framer-motion";
 import { useGetSingleUserQuery } from "@/redux/api/userApi";
 import { useGetAllSpecialistQuery } from "@/redux/api/specialsitApi";
-import { useGetAllServicesQuery } from "@/redux/api/serviceApi";
 import { useCreateAppointmentMutation } from "@/redux/api/appointmentApi";
 import { useGetAvailabilityBySpecialistQuery } from "@/redux/api/availabilityApi";
-
+import { useGetServiceBySpecialistIdQuery } from "@/redux/api/serviceApi";
 
 // Helper: generate hourly slots between start and end time (12-hour format)
 const generateTimeSlots = (start: string, end: string) => {
@@ -45,9 +43,6 @@ const generateTimeSlots = (start: string, end: string) => {
   return slots;
 };
 
-
-
-
 const BookAppointment = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -56,9 +51,18 @@ const BookAppointment = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const { data: userData, isLoading: loadingUser } = useGetSingleUserQuery();
-  const { data: specialists, isLoading: loadingSpecialists } = useGetAllSpecialistQuery();
-  const { data: services, isLoading: loadingServices } = useGetAllServicesQuery();
-  const [createAppointment, { isLoading: creating }] = useCreateAppointmentMutation();
+  const { data: specialists, isLoading: loadingSpecialists } =
+    useGetAllSpecialistQuery();
+
+    console.log(specialists)
+  const [createAppointment, { isLoading: creating }] =
+    useCreateAppointmentMutation();
+
+  // Fetch services dynamically for selected specialist
+  const { data: services, isLoading: loadingServices } =
+    useGetServiceBySpecialistIdQuery(selectedSpecialist, {
+      skip: !selectedSpecialist,
+    });
 
   // Fetch availability for selected specialist
   const { data: availabilityData, isLoading: loadingAvailability } =
@@ -67,43 +71,39 @@ const BookAppointment = () => {
     });
 
   const userId = userData?.id;
-
-  // Determine day of week for selected date
   const selectedDayOfWeek = selectedDate ? selectedDate.getDay() : null;
 
   // Generate dynamic time slots
-const availableSlots = useMemo(() => {
-  if (!availabilityData || selectedDayOfWeek === null) return [];
+  const availableSlots = useMemo(() => {
+    if (!availabilityData || selectedDayOfWeek === null) return [];
 
-  // Match the day of week
-  const dayAvailabilities = availabilityData.filter(
-    (a: any) => a.dayOfWeek === selectedDayOfWeek
-  );
+    const dayAvailabilities = availabilityData.filter(
+      (a: any) => a.dayOfWeek === selectedDayOfWeek
+    );
 
-  // Collect all slots
-  let slots: string[] = [];
-  dayAvailabilities.forEach((a: any) => {
-    const s = generateTimeSlots(a.startTime, a.endTime);
-    slots = [...slots, ...s];
-  });
+    let slots: string[] = [];
+    dayAvailabilities.forEach((a: any) => {
+      const s = generateTimeSlots(a.startTime, a.endTime);
+      slots = [...slots, ...s];
+    });
 
-  // ✅ Remove duplicates and sort chronologically
-  const uniqueSlots = Array.from(new Set(slots));
+    const uniqueSlots = Array.from(new Set(slots));
+    uniqueSlots.sort((a, b) => {
+      const dateA = new Date(`1970-01-01 ${a}`);
+      const dateB = new Date(`1970-01-01 ${b}`);
+      return dateA.getTime() - dateB.getTime();
+    });
 
-  // Optional: sort in proper time order (AM before PM)
-  uniqueSlots.sort((a, b) => {
-    const dateA = new Date(`1970-01-01 ${a}`);
-    const dateB = new Date(`1970-01-01 ${b}`);
-    return dateA.getTime() - dateB.getTime();
-  });
+    return uniqueSlots;
+  }, [availabilityData, selectedDayOfWeek]);
 
-  return uniqueSlots;
-}, [availabilityData, selectedDayOfWeek]);
-
-
-  // Booking logic
   const handleBookAppointment = async () => {
-    if (!selectedDate || !selectedTime || !selectedSpecialist || !selectedService) {
+    if (
+      !selectedDate ||
+      !selectedTime ||
+      !selectedSpecialist ||
+      !selectedService
+    ) {
       alert("Please select date, time, specialist, and service.");
       return;
     }
@@ -130,13 +130,14 @@ const availableSlots = useMemo(() => {
       await createAppointment(appointmentData).unwrap();
       setOpenSnackbar(true);
       setSelectedTime(null);
+      setSelectedService("");
     } catch (error: any) {
       alert(error?.data?.message || "Failed to create appointment");
     }
   };
 
   // Loading state
-  if (loadingUser || loadingSpecialists || loadingServices) {
+  if (loadingUser || loadingSpecialists) {
     return (
       <Box className="flex justify-center items-center h-64">
         <CircularProgress />
@@ -186,30 +187,45 @@ const availableSlots = useMemo(() => {
               <InputLabel>Select Specialist</InputLabel>
               <Select
                 value={selectedSpecialist}
-                onChange={(e) => setSelectedSpecialist(e.target.value)}
+                onChange={(e) => {
+                  const specialistId = e.target.value;
+                  setSelectedSpecialist(specialistId);
+                  setSelectedService("");
+                  setSelectedTime(null);
+                }}
                 label="Select Specialist"
               >
                 {specialists?.map((sp: any) => (
                   <MenuItem key={sp.id} value={sp.id}>
-                    {sp.name} — {sp.specialization || "Specialist"}
+                    {sp.name} — {sp.specialty}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             {/* Service */}
-            <FormControl fullWidth sx={{ mb: 3 }}>
+            <FormControl
+              fullWidth
+              sx={{ mb: 3 }}
+              disabled={!selectedSpecialist}
+            >
               <InputLabel>Select Service</InputLabel>
               <Select
                 value={selectedService}
                 onChange={(e) => setSelectedService(e.target.value)}
                 label="Select Service"
               >
-                {services?.map((sv: any) => (
-                  <MenuItem key={sv.id} value={sv.id}>
-                    {sv.name} ({sv.price ? `$${sv.price}` : "Free"})
-                  </MenuItem>
-                ))}
+                {loadingServices ? (
+                  <MenuItem disabled>Loading services...</MenuItem>
+                ) : services?.length > 0 ? (
+                  services.map((sv: any) => (
+                    <MenuItem key={sv.id} value={sv.id}>
+                      {sv.name} ({sv.price ? `$${sv.price}` : "Free"})
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No services available</MenuItem>
+                )}
               </Select>
             </FormControl>
 
@@ -239,7 +255,8 @@ const availableSlots = useMemo(() => {
                       fontWeight: 500,
                       borderColor: "#1976d2",
                       color: selectedTime === time ? "#fff" : "#1976d2",
-                      bgcolor: selectedTime === time ? "#1976d2" : "transparent",
+                      bgcolor:
+                        selectedTime === time ? "#1976d2" : "transparent",
                       "&:hover": { bgcolor: "#1976d2", color: "#fff" },
                     }}
                     onClick={() => setSelectedTime(time)}

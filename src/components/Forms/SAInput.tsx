@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SxProps, TextField } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -10,6 +11,9 @@ type TInputProps = {
   sx?: SxProps;
   placeholder?: string;
   required?: boolean;
+  select?: boolean;
+  children?: React.ReactNode;
+  InputLabelProps?: any;
 };
 
 const SAInput = ({
@@ -20,26 +24,34 @@ const SAInput = ({
   fullWidth,
   sx,
   required,
+  select = false,
+  children,
 }: TInputProps) => {
   const { control } = useFormContext();
+
   return (
     <Controller
       control={control}
       name={name}
+      defaultValue="" // ✅ ensures no "undefined value"
       render={({ field, fieldState: { error } }) => (
         <TextField
           {...field}
+          value={field.value ?? ""} // ✅ prevents "undefined"
+          onChange={(e) => field.onChange(e.target.value)} // ✅ handle select correctly
           sx={{ ...sx }}
           label={label}
           type={type}
           variant="outlined"
           size={size}
           fullWidth={fullWidth}
-          placeholder={label}
           required={required}
           error={!!error?.message}
           helperText={error?.message}
-        />
+          select={select}
+        >
+          {children}
+        </TextField>
       )}
     />
   );

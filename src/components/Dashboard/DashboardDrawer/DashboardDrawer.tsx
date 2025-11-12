@@ -53,6 +53,7 @@ const providerMenu = [
   { label: "Provider Dashboard", icon: <DashboardIcon />, path: "/dashboard/provider" },
   { label: "Today's Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/provider/todayAppointment" },
   { label: "Appointment Requests", icon: <EmailIcon />, path: "/dashboard/provider/AppointmentRequest" },
+  { label: "Create Schedule", icon: <AccessTimeIcon />, path: "/dashboard/provider/create-schedule" },
 ];
 
 export default function DashboardDrawer({ children }: { children: React.ReactNode }) {

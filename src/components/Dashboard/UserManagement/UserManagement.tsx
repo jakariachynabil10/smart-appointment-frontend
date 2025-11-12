@@ -20,6 +20,7 @@ import {
   useDeleteUserByIdMutation,
   useGetAllUserQuery,
 } from "@/redux/api/userApi";
+import toast from "react-hot-toast";
 
 const UserManagement = () => {
   const pathname = usePathname();
@@ -29,7 +30,7 @@ const UserManagement = () => {
   const handleDelete = async (id: string) => {
     try {
       const result = await deleteUserById(id).unwrap();
-      alert("✅ User deleted successfully!");
+      toast.success("User Deleted Successfully")
       console.log(result);
     } catch (error: any) {
       console.error("Error deleting user:", error);

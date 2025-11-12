@@ -123,7 +123,7 @@ const CreateSpecialist = () => {
             >
               Want to view all specialists?{" "}
               <Link
-                href="/dashboard/admin/specialists"
+                href="/dashboard/admin/users"
                 className="text-blue-600 font-medium hover:underline"
               >
                 Go to List

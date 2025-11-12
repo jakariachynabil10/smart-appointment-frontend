@@ -5,6 +5,7 @@ const DashboardLayout =({ children }: { children: React.ReactNode }) => {
   return (
     <>
      <DashboardDrawer>{children}</DashboardDrawer>
+     
     </>
   );
 };
