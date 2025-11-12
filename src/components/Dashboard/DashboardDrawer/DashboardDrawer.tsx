@@ -27,6 +27,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import EmailIcon from "@mui/icons-material/Email";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import ServiceIcon from "@mui/icons-material/RoomService"
 
 import useUserInfo from "@/hooks/useUserInfo";
 import { logout } from "@/service/actions/logout";
@@ -44,8 +45,8 @@ const adminMenu = [
   { label: "Admin Dashboard", icon: <DashboardIcon />, path: "/dashboard/admin" },
   { label: "User Management", icon: <PeopleIcon />, path: "/dashboard/admin/users" },
   { label: "Appointment Management", icon: <CalendarMonthIcon />, path: "/dashboard/admin/appointments" },
-  { label: "Analytics Overview", icon: <BarChartIcon />, path: "/dashboard/admin/analytics" },
   { label: "Create Specialist", icon: <PeopleIcon />, path: "/dashboard/admin/create-specialist" },
+  { label: "Create Services", icon: <ServiceIcon />, path: "/dashboard/admin/create-service" },
 ];
 
 const providerMenu = [

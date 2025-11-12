@@ -4,14 +4,15 @@ import { baseApi } from "./baseApi";
 
 export const specialistApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    // 🧩 Create Specialist
+    // 🧩 Create Specialist (FormData)
     createSpecialist: build.mutation<any, FormData>({
       query: (data) => ({
         url: "/specialist/create-specialist",
         method: "POST",
-        body: data, // ✅ use 'body', not 'data'
+        contentType: "multipart/form-data",
+        data,
       }),
-      invalidatesTags: [TagTypes.superadmin, TagTypes.admin, TagTypes.provider],
+      invalidatesTags: [TagTypes.superadmin, TagTypes.admin],
     }),
 
     // 🧩 Get All Specialists

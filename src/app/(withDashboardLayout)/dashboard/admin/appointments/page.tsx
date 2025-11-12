@@ -1,9 +1,10 @@
+import AllAppointments from '@/components/Dashboard/AllAppointments/AllAppointments';
 import React from 'react';
 
 const Appointments = () => {
   return (
     <>
-        <h1>Appointment</h1>
+        <AllAppointments/>
     </>
   );
 };

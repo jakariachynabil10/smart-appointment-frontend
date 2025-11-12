@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useMemo } from "react";
@@ -12,7 +13,6 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Button,
   Chip,
 } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
@@ -31,29 +31,15 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
-import {
-  useDeleteUserByIdMutation,
-  useGetAllUserQuery,
-} from "@/redux/api/userApi";
+import { useGetAllUserQuery } from "@/redux/api/userApi";
 import { useGetAllAppointmentQuery } from "@/redux/api/appointmentApi";
+import UserManagement from "@/components/Dashboard/UserManagement/UserManagement";
+import AllAppointments from "@/components/Dashboard/AllAppointments/AllAppointments";
 
 const AdminPage = () => {
   const { data: usersData, isLoading: isUserLoading } = useGetAllUserQuery();
   const { data: appointmentData, isLoading: isAppointmentLoading } =
     useGetAllAppointmentQuery();
-  const [deleteUserById, { isLoading: isDeleting }] =
-    useDeleteUserByIdMutation();
-
-  const handleDelete = async (id: string) => {
-    try {
-      const result = await deleteUserById(id).unwrap();
-      alert("✅ User deleted successfully!");
-      console.log(result);
-    } catch (error: any) {
-      console.error("Error deleting user:", error);
-      alert("❌ Failed to delete user. Please try again.");
-    }
-  };
 
   const summary = useMemo(
     () => [
@@ -266,192 +252,10 @@ const AdminPage = () => {
         </Box>
 
         {/* User Management Table */}
-        <Typography variant="h6" className="font-semibold my-4!">
-          User Management
-        </Typography>
-        <Card className="shadow-md rounded-2xl! mb-8">
-          <CardContent>
-            {isUserLoading ? (
-              <Typography>Loading users...</Typography>
-            ) : (
-              <Table
-                sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                      Name
-                    </TableCell>
-                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                      Email
-                    </TableCell>
-                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                      Role
-                    </TableCell>
-                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                      Joined
-                    </TableCell>
-                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                      Action
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {usersData
-                    ?.filter((u: any) => u.role !== "SUPERADMIN")
-                    .map((user: any, i: any) => (
-                      <TableRow
-                        key={i}
-                        sx={{
-                          border: "none",
-                          backgroundColor: "white",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                          borderRadius: "12px",
-                          "&:hover": { backgroundColor: "#f9fafb" },
-                        }}
-                      >
-                        <TableCell sx={{ border: "none", py: 2 }}>
-                          {user?.name}
-                        </TableCell>
-                        <TableCell sx={{ border: "none", py: 2 }}>
-                          {user?.email}
-                        </TableCell>
-                        <TableCell sx={{ border: "none", py: 2 }}>
-                          {user?.role}
-                        </TableCell>
-                        <TableCell sx={{ border: "none", py: 2 }}>
-                          {new Date(user?.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            disabled={isDeleting}
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            {isDeleting ? "Deleting..." : "Delete"}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        <UserManagement />
 
         {/* ✅ Appointment Management Table (Dynamic) */}
-        <Typography variant="h6" className="font-semibold my-4!">
-          Appointment Management
-        </Typography>
-        <Card className="shadow-md rounded-2xl! mb-8">
-          <CardContent>
-            {isAppointmentLoading ? (
-              <Typography>Loading appointments...</Typography>
-            ) : appointmentData?.length > 0 ? (
-              <Table
-                sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600 }}>Client</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Provider</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Start Time</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>End Time</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {appointmentData.map((appt: any, i: number) => {
-                    let statusColor = "default";
-                    let statusLabel = appt?.status || "UNKNOWN";
-
-                    // Assign color & label styles based on status
-                    switch (appt?.status) {
-                      case "PENDING":
-                        statusColor = "warning";
-                        statusLabel = "Pending";
-                        break;
-                      case "COMPLETED":
-                        statusColor = "success";
-                        statusLabel = "Completed";
-                        break;
-                      case "CANCELLED":
-                        statusColor = "error";
-                        statusLabel = "Cancelled";
-                        break;
-                      case "CONFIRMED":
-                        statusColor = "info";
-                        statusLabel = "Confirmed";
-                        break;
-                      default:
-                        statusColor = "default";
-                        statusLabel = appt?.status || "Unknown";
-                    }
-
-                    return (
-                      <TableRow
-                        key={i}
-                        sx={{
-                          backgroundColor: "white",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                          borderRadius: "12px",
-                          "&:hover": { backgroundColor: "#f9fafb" },
-                        }}
-                      >
-                        <TableCell sx={{ py: 2 }}>
-                          {appt?.user?.name || "Unknown"}
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          {appt?.specialist?.name || "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          {new Date(appt?.date).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          {appt?.startTime
-                            ? new Date(appt.startTime).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          {appt?.endTime
-                            ? new Date(appt.endTime).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"}
-                        </TableCell>
-
-                        {/* ✅ Stylish Status Chip */}
-                        <TableCell sx={{ py: 2 }}>
-                          <Chip
-                            label={statusLabel}
-                            color={statusColor as any}
-                            variant="outlined"
-                            sx={{
-                              fontWeight: "bold",
-                              borderRadius: "8px",
-                              fontSize: "0.8rem",
-                              px: 1,
-                              textTransform: "capitalize",
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            ) : (
-              <Typography>No appointments found.</Typography>
-            )}
-          </CardContent>
-        </Card>
+       <AllAppointments/>
       </Box>
     </motion.div>
   );

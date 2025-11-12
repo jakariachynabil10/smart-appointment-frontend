@@ -1,11 +1,12 @@
+import UserManagement from '@/components/Dashboard/UserManagement/UserManagement';
 import React from 'react';
 
-const UsersManagement = () => {
+const Users = () => {
   return (
     <>
-    <h1>User Management</h1>
+      <UserManagement/>
     </>
   );
 };
 
-export default UsersManagement;
+export default Users;
