@@ -42,6 +42,7 @@ const userMenu = [
 ];
 
 const adminMenu = [
+  { label: "Home", icon: <Home />, path: "/" },
   { label: "Admin Dashboard", icon: <DashboardIcon />, path: "/dashboard/admin" },
   { label: "User Management", icon: <PeopleIcon />, path: "/dashboard/admin/users" },
   { label: "Appointment Management", icon: <CalendarMonthIcon />, path: "/dashboard/admin/appointments" },
@@ -50,6 +51,7 @@ const adminMenu = [
 ];
 
 const providerMenu = [
+  { label: "Home", icon: <Home />, path: "/" },
   { label: "Provider Dashboard", icon: <DashboardIcon />, path: "/dashboard/provider" },
   { label: "Today's Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/provider/todayAppointment" },
   { label: "Appointment Requests", icon: <EmailIcon />, path: "/dashboard/provider/AppointmentRequest" },

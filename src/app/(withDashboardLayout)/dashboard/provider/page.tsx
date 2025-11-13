@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Box,
@@ -36,10 +36,26 @@ import { useGetAppointmentsBySpecialistIdQuery } from "@/redux/api/specialsitApi
 import { useGetSingleUserQuery } from "@/redux/api/userApi";
 import { useGetAvailabilityBySpecialistQuery } from "@/redux/api/availabilityApi";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 const ProviderPage = () => {
   // ✅ Fetch current user (specialist)
   const { data: currentUser, isLoading: userLoading } = useGetSingleUserQuery();
+
+    useEffect(() => {
+      if (!userLoading && currentUser?.role !== "SPCEIALIST") {
+        toast.error("Only users can access this dashboard");
+  
+        // Wait a bit to let the toast appear
+        setTimeout(() => {
+          // Redirect to previous page
+          if (typeof window !== "undefined") {
+            window.history.back();
+          }
+        }, 100); // 2-second delay
+      }
+    }, [currentUser, userLoading]);
+
   const specialistId = currentUser?.id;
 
   // ✅ Fetch appointments

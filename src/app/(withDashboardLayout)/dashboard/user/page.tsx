@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Box,
@@ -21,6 +21,8 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import { useGetSingleUserQuery } from "@/redux/api/userApi";
 import BookAppointment from "@/components/Dashboard/BookAppointment/BookAppointment";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const upcoming = [
   {
@@ -42,9 +44,24 @@ const notifications = [
 ];
 
 export default function UserDashboard() {
+  const router = useRouter();
+
   // const userInfo = useUserInfo();
   const { data: userInfo, isLoading } = useGetSingleUserQuery();
-  console.log(userInfo);
+
+  useEffect(() => {
+    if (!isLoading && userInfo?.role !== "USER") {
+      toast.error("Only users can access this dashboard");
+
+      // Wait a bit to let the toast appear
+      setTimeout(() => {
+        // Redirect to previous page
+        if (typeof window !== "undefined") {
+          window.history.back();
+        }
+      }, 100); // 2-second delay
+    }
+  }, [userInfo, isLoading]);
 
   const appointments = userInfo?.appointments || [];
 
