@@ -21,12 +21,6 @@ export const specialistApi = baseApi.injectEndpoints({
         url: "/specialist",
         method: "GET",
       }),
-      providesTags: [
-        TagTypes.user,
-        TagTypes.superadmin,
-        TagTypes.admin,
-        TagTypes.provider,
-      ],
     }),
 
     // 🆕 Get Appointments by Specialist ID

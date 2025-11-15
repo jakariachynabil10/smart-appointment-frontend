@@ -5,31 +5,28 @@ import {
   Card,
   Typography,
   Button,
-  MenuItem,
   CircularProgress,
 } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
 import SAForm from "@/components/Forms/SAForm";
 import { useCreateServiceMutation } from "@/redux/api/serviceApi";
 import toast from "react-hot-toast";
-import { useGetAllSpecialistQuery } from "@/redux/api/specialsitApi";
 import SAInput from "@/components/Forms/SAInput";
+import { useGetSingleUserQuery } from "@/redux/api/userApi";
 
 const CreateService = () => {
   const [createService] = useCreateServiceMutation();
-  const { data: specialistsData, isLoading } = useGetAllSpecialistQuery();
-
-  const specialists = specialistsData || [];
+  const { data: currentUser, isLoading: isUserLoading } =
+    useGetSingleUserQuery();
 
   const handleSubmit = async (values: any) => {
-    console.log(values);
     try {
       const serviceData: any = {
         name: values.name,
         description: values.description,
         duration: values.duration,
         price: values.price,
-        specialistId: values.specialistId,
+        specialistId: currentUser?.id, // AUTO-FILLED
       };
 
       const res = await createService(serviceData).unwrap();
@@ -40,14 +37,9 @@ const CreateService = () => {
     }
   };
 
-  if (isLoading) {
+  if (isUserLoading) {
     return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        height="60vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
         <CircularProgress />
       </Box>
     );
@@ -59,9 +51,7 @@ const CreateService = () => {
       justifyContent="center"
       alignItems="center"
       minHeight="90vh"
-      sx={{
-        py: 6,
-      }}
+      sx={{ py: 6 }}
     >
       <Card
         sx={{
@@ -112,25 +102,14 @@ const CreateService = () => {
             sx={{ mb: 2 }}
           />
 
-          {/* Specialist Dropdown */}
+          {/* Auto-filled Specialist Field */}
           <SAInput
-            name="specialistId"
-            label="Select Specialist"
+            name="specialistName"
+            label="Specialist"
             fullWidth
-            required
+            value={currentUser?.name}
             sx={{ mb: 3 }}
-            select
-          >
-            {specialists.length > 0 ? (
-              specialists.map((spec: any) => (
-                <MenuItem key={spec.id} value={spec.id}>
-                  {spec.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>No specialists available</MenuItem>
-            )}
-          </SAInput>
+          />
 
           <Box display="flex" justifyContent="center">
             <Button

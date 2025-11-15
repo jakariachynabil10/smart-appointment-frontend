@@ -48,20 +48,20 @@ export default function UserDashboard() {
 
   // const userInfo = useUserInfo();
   const { data: userInfo, isLoading } = useGetSingleUserQuery();
-
   useEffect(() => {
-    if (!isLoading && userInfo?.role !== "USER") {
-      toast.error("Only users can access this dashboard");
+    if (!isLoading) {
+      if (userInfo?.role !== "USER") {
+        toast.error("Only users can access this dashboard");
 
-      // Wait a bit to let the toast appear
-      setTimeout(() => {
-        // Redirect to previous page
-        if (typeof window !== "undefined") {
-          window.history.back();
-        }
-      }, 100); // 2-second delay
+        // Delay redirect so toast is visible
+        const timeout = setTimeout(() => {
+          router.push("/login");
+        }, 1500); // 1.5 sec delay so user can see toast
+
+        return () => clearTimeout(timeout);
+      }
     }
-  }, [userInfo, isLoading]);
+  }, [userInfo, isLoading, router]);
 
   const appointments = userInfo?.appointments || [];
 

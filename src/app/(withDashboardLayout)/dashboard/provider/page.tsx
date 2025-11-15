@@ -37,24 +37,34 @@ import { useGetSingleUserQuery } from "@/redux/api/userApi";
 import { useGetAvailabilityBySpecialistQuery } from "@/redux/api/availabilityApi";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import useUserInfo from "@/hooks/useUserInfo";
+import { useRouter } from "next/navigation";
 
 const ProviderPage = () => {
   // ✅ Fetch current user (specialist)
+
+  const userInfo = useUserInfo();
+
   const { data: currentUser, isLoading: userLoading } = useGetSingleUserQuery();
 
-    useEffect(() => {
-      if (!userLoading && currentUser?.role !== "SPCEIALIST") {
-        toast.error("Only users can access this dashboard");
-  
-        // Wait a bit to let the toast appear
-        setTimeout(() => {
-          // Redirect to previous page
-          if (typeof window !== "undefined") {
-            window.history.back();
-          }
-        }, 100); // 2-second delay
+  const router = useRouter();
+
+  // 🚨 Prevent non-specialists from accessing this page
+  useEffect(() => {
+    if (!userLoading && userInfo) {
+      if (userInfo.role !== "specialist") {
+        toast.error("Only specialists can access this dashboard");
+
+        const timeout = setTimeout(() => {
+          router.push("/login");
+        }, 1000);
+
+        return () => clearTimeout(timeout);
       }
-    }, [currentUser, userLoading]);
+    }
+  }, [userInfo, userLoading, router]);
+
+  // console.log(currentUser)
 
   const specialistId = currentUser?.id;
 
@@ -105,8 +115,6 @@ const ProviderPage = () => {
     : availabilityData
     ? [availabilityData]
     : [];
-
-
 
   return (
     <Box className="p-6 min-h-screen bg-gray-50">

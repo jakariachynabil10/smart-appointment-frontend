@@ -47,7 +47,6 @@ const adminMenu = [
   { label: "User Management", icon: <PeopleIcon />, path: "/dashboard/admin/users" },
   { label: "Appointment Management", icon: <CalendarMonthIcon />, path: "/dashboard/admin/appointments" },
   { label: "Create Specialist", icon: <PeopleIcon />, path: "/dashboard/admin/create-specialist" },
-  { label: "Create Services", icon: <ServiceIcon />, path: "/dashboard/admin/create-service" },
 ];
 
 const providerMenu = [
@@ -56,6 +55,7 @@ const providerMenu = [
   { label: "Today's Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/provider/todayAppointment" },
   { label: "Appointment Requests", icon: <EmailIcon />, path: "/dashboard/provider/AppointmentRequest" },
   { label: "Create Schedule", icon: <AccessTimeIcon />, path: "/dashboard/provider/create-schedule" },
+  { label: "Create Services", icon: <ServiceIcon />, path: "/dashboard/provider/create-service" },
 ];
 
 export default function DashboardDrawer({ children }: { children: React.ReactNode }) {

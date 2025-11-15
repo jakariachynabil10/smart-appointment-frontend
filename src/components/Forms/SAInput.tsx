@@ -14,6 +14,7 @@ type TInputProps = {
   select?: boolean;
   children?: React.ReactNode;
   InputLabelProps?: any;
+  value? : any
 };
 
 const SAInput = ({
@@ -26,6 +27,7 @@ const SAInput = ({
   required,
   select = false,
   children,
+  value
 }: TInputProps) => {
   const { control } = useFormContext();
 
@@ -37,7 +39,7 @@ const SAInput = ({
       render={({ field, fieldState: { error } }) => (
         <TextField
           {...field}
-          value={field.value ?? ""} // ✅ prevents "undefined"
+           value={value !== undefined ? value : field.value ?? ""}
           onChange={(e) => field.onChange(e.target.value)} // ✅ handle select correctly
           sx={{ ...sx }}
           label={label}
