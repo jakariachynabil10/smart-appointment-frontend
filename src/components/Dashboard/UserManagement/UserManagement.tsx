@@ -25,24 +25,22 @@ import toast from "react-hot-toast";
 const UserManagement = () => {
   const pathname = usePathname();
   const { data: usersData, isLoading: isUserLoading } = useGetAllUserQuery();
-  const [deleteUserById, { isLoading: isDeleting }] = useDeleteUserByIdMutation();
+  const [deleteUserById, { isLoading: isDeleting }] =
+    useDeleteUserByIdMutation();
 
   const handleDelete = async (id: string) => {
     try {
-      const result = await deleteUserById(id).unwrap();
-      toast.success("User Deleted Successfully")
-      console.log(result);
+      await deleteUserById(id).unwrap();
+      toast.success("User deleted successfully");
     } catch (error: any) {
       console.error("Error deleting user:", error);
-      alert("❌ Failed to delete user. Please try again.");
+      toast.error("❌ Failed to delete user. Please try again.");
     }
   };
 
-  // ✅ Show only first 5 users if on /dashboard/admin
+  // Show only first 5 users on /dashboard/admin
   const displayedUsers =
-    pathname === "/dashboard/admin"
-      ? usersData?.slice(0, 5)
-      : usersData;
+    pathname === "/dashboard/admin" ? usersData?.slice(0, 5) : usersData;
 
   return (
     <>
@@ -51,7 +49,6 @@ const UserManagement = () => {
           User Management
         </Typography>
 
-        {/* ✅ Show View All button only on admin dashboard */}
         {pathname === "/dashboard/admin" && (
           <Link href="/dashboard/admin/users">
             <Button variant="outlined" size="small">
@@ -66,70 +63,86 @@ const UserManagement = () => {
           {isUserLoading ? (
             <Typography>Loading users...</Typography>
           ) : (
-            <Table
-              sx={{ borderCollapse: "separate", borderSpacing: "0 10px" }}
+            <Box
+              sx={{
+                width: "100%",
+                overflowX: "auto",
+              }}
             >
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                    Name
-                  </TableCell>
-                  <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                    Email
-                  </TableCell>
-                  <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                    Role
-                  </TableCell>
-                  <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                    Joined
-                  </TableCell>
-                  <TableCell sx={{ border: "none", fontWeight: 600 }}>
-                    Action
-                  </TableCell>
-                </TableRow>
-              </TableHead>
+              <Table
+                sx={{
+                  borderCollapse: "separate",
+                  borderSpacing: "0 10px",
+                  minWidth: 650,
+                }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Email
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Role
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Joined
+                    </TableCell>
+                    <TableCell sx={{ border: "none", fontWeight: 600 }}>
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
 
-              <TableBody>
-                {displayedUsers
-                  ?.filter((u: any) => u.role !== "SUPERADMIN")
-                  .map((user: any, i: number) => (
-                    <TableRow
-                      key={i}
-                      sx={{
-                        border: "none",
-                        backgroundColor: "white",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                        borderRadius: "12px",
-                        "&:hover": { backgroundColor: "#f9fafb" },
-                      }}
-                    >
-                      <TableCell sx={{ border: "none", py: 2 }}>
-                        {user?.name}
-                      </TableCell>
-                      <TableCell sx={{ border: "none", py: 2 }}>
-                        {user?.email}
-                      </TableCell>
-                      <TableCell sx={{ border: "none", py: 2 }}>
-                        {user?.role}
-                      </TableCell>
-                      <TableCell sx={{ border: "none", py: 2 }}>
-                        {new Date(user?.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                          disabled={isDeleting}
-                          onClick={() => handleDelete(user.id)}
-                        >
-                          {isDeleting ? "Deleting..." : "Delete"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+                <TableBody>
+                  {displayedUsers
+                    ?.filter((u: any) => u.role !== "SUPERADMIN")
+                    .map((user: any, i: number) => (
+                      <TableRow
+                        key={i}
+                        sx={{
+                          backgroundColor: "white",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                          borderRadius: "12px",
+                          "&:hover": { backgroundColor: "#f9fafb" },
+                        }}
+                      >
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.name}
+                        </TableCell>
+
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          <span style={{ wordBreak: "break-word" }}>
+                            {user?.email}
+                          </span>
+                        </TableCell>
+
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {user?.role}
+                        </TableCell>
+
+                        <TableCell sx={{ border: "none", py: 2 }}>
+                          {new Date(user?.createdAt).toLocaleDateString()}
+                        </TableCell>
+
+                        <TableCell sx={{ border: "none" }}>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            disabled={isDeleting}
+                            onClick={() => handleDelete(user.id)}
+                          >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </Box>
           )}
         </CardContent>
       </Card>

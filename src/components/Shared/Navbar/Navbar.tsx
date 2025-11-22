@@ -42,12 +42,16 @@ const Navbar = () => {
     }
   };
 
-  const navItems = [
-    { label: "Home", href: "/" },
-    { label: "Providers", href: "/providers" },
-    { label: "Feature", href: "/feature" },
-    { label: "About", href: "/about" },
-  ];
+ const navItems = [
+  { label: "Home", href: "/" },
+  { label: "Providers", href: "/providers" },
+  { label: "Feature", href: "/feature" },
+  { label: "About", href: "/about" },
+  ...(userInfo?.id
+    ? [{ label: "Dashboard", href: "/dashboard" }]
+    : []),
+];
+
 
   return (
     <Box

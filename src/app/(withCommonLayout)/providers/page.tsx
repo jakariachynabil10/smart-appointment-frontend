@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -19,6 +19,34 @@ const Providers = () => {
   const { data, isLoading, isError } = useGetAllSpecialistQuery();
   const specialists = data || [];
 
+  const [searchText, setSearchText] = useState("");
+  const [selectedSpecialty, setSelectedSpecialty] = useState("All");
+
+  // 📌 Extract unique specialties dynamically
+  const specialties = [
+    "All",
+    ...new Set(
+      specialists
+        .map((s: any) => s.specialty)
+        .filter((spec: any) => spec && spec !== "")
+    ),
+  ];
+
+  // 🔍 Search + Specialty Filter Combined
+  const filteredSpecialists = specialists.filter((s: any) => {
+    const q = searchText.toLowerCase();
+
+    const matchesSearch =
+      s.name?.toLowerCase().includes(q) ||
+      s.specialty?.toLowerCase().includes(q);
+
+    const matchesSpecialty =
+      selectedSpecialty === "All" ||
+      s.specialty?.toLowerCase() === selectedSpecialty.toLowerCase();
+
+    return matchesSearch && matchesSpecialty;
+  });
+
   if (isLoading)
     return (
       <Box className="flex justify-center items-center h-[80vh]">
@@ -35,7 +63,7 @@ const Providers = () => {
 
   return (
     <Box className="bg-gray-50 min-h-screen py-14 px-6 md:px-16 lg:px-24">
-      {/* Header Section */}
+      {/* Header */}
       <Box className="text-center mb-12">
         <Typography
           variant="h4"
@@ -43,60 +71,54 @@ const Providers = () => {
         >
           Find Your Perfect Professional
         </Typography>
-        <Typography
-          variant="body1"
-          className="text-gray-500 pt-5 leading-relaxed"
-        >
+        <Typography variant="body1" className="text-gray-500 pt-5 leading-relaxed">
           Browse our extensive network of certified professionals across various
-          categories.
-          <br /> Your next appointment is just a click away!
+          specialties.
         </Typography>
       </Box>
 
       {/* Search Bar */}
       <Box className="flex justify-center mb-8">
         <TextField
-          placeholder="Search for professionals by name or specialty..."
+          placeholder="Search by name or specialty..."
           variant="outlined"
           size="small"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
           className="w-full md:w-2/3 lg:w-1/2 bg-white rounded-full"
-          InputProps={{
-            className: "rounded-full px-4 py-1",
-          }}
+          InputProps={{ className: "rounded-full px-4 py-1" }}
         />
       </Box>
 
-      {/* Filter Buttons */}
+      {/* Specialty Filter Buttons */}
       <Box className="flex flex-wrap justify-center gap-3 mb-14">
-        {[
-          "All",
-          "Psychiatrist",
-          "ENT Specialist",
-          "Oncologist",
-          "Pediatrician",
-          "Neurologist",
-          "Dermatologist",
-          "Cardiologist"
-        ].map((cat) => (
+        {specialties.map((spec : any) => (
           <Button
-            key={cat}
-            variant={cat === "All" ? "contained" : "outlined"}
+            key={spec}
+            onClick={() => setSelectedSpecialty(spec)}
+            variant={selectedSpecialty === spec ? "contained" : "outlined"}
             color="primary"
             size="small"
             className={`rounded-full px-5 text-sm font-medium ${
-              cat === "All"
+              selectedSpecialty === spec
                 ? "bg-blue-600 text-white"
                 : "border-gray-300 text-gray-600 hover:bg-blue-50"
             }`}
           >
-            {cat}
+            {spec}
           </Button>
         ))}
       </Box>
 
       {/* Specialists Grid */}
-      <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-10 justify-items-center">
-        {specialists.map((specialist: any, index: number) => (
+      <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+        {filteredSpecialists.length === 0 && (
+          <Typography className="text-gray-500 text-lg col-span-3">
+            No professionals found 😔
+          </Typography>
+        )}
+
+        {filteredSpecialists.map((specialist: any, index: number) => (
           <motion.div
             key={specialist.id || index}
             initial={{ opacity: 0, y: 30 }}
@@ -108,8 +130,8 @@ const Providers = () => {
                 "0 10px 25px rgba(59,130,246,0.25), 0 0 10px rgba(96,165,250,0.15)",
             }}
           >
-            <Card className="w-[400px] rounded-2xl! border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 bg-white relative overflow-hidden">
-              <CardContent className="flex flex-col items-center text-center p-8! relative z-10">
+            <Card className="w-[400px] rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 bg-white">
+              <CardContent className="flex flex-col items-center text-center p-8">
                 <Avatar
                   src={
                     specialist.profilePhoto ||
@@ -120,25 +142,15 @@ const Providers = () => {
                   className="mb-5 border-4 border-blue-100 shadow-sm"
                 />
 
-                <Typography
-                  variant="h6"
-                  className="font-semibold text-gray-800 capitalize"
-                >
+                <Typography variant="h6" className="font-semibold text-gray-800 capitalize">
                   {specialist.name}
                 </Typography>
 
-                <Typography
-                  variant="body2"
-                  className="text-gray-500 py-2 capitalize"
-                >
+                <Typography variant="body2" className="text-gray-500 py-2 capitalize">
                   {specialist.specialty || "Specialty Not Available"}
                 </Typography>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  className="mt-1"
-                >
+                <Typography variant="body2" color="text.secondary" className="mt-1">
                   {specialist.email}
                 </Typography>
 
@@ -151,14 +163,14 @@ const Providers = () => {
                   </Typography>
                 </Box>
 
-               <Link href={"/dashboard/user"}>
-                <Button
-                  variant="contained"
-                  className="mt-5! rounded-full normal-case px-6 py-1.5 bg-blue-600 hover:bg-blue-700"
-                >
-                  Book Now
-                </Button>
-               </Link>
+                <Link href={"/dashboard/user"}>
+                  <Button
+                    variant="contained"
+                    className="mt-5 rounded-full normal-case px-6 py-1.5 bg-blue-600 hover:bg-blue-700"
+                  >
+                    Book Now
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </motion.div>
