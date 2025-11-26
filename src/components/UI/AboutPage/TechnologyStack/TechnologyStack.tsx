@@ -60,72 +60,85 @@ const items = [
 const TechnologyStack = () => {
   return (
     <>
-      <Box className="py-16 md:py-24 px-4 bg-white">
-        {/* TITLE */}
-        <Typography
-          fontWeight="bold"
-          className="text-center text-3xl sm:text-3xl md:text-4xl text-gray-900"
-        >
-          Our Core Technology Stack
-        </Typography>
+      {/* PARENT WITH SAME ANIMATION */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{
+          duration: 0.7,
+          ease: "easeOut",
+        }}
+      >
+        <Box className="py-16 md:py-24 px-4 bg-white">
+          {/* TITLE */}
+          <Typography
+            fontWeight="bold"
+            className="text-center text-3xl! sm:text-3xl! md:text-4xl! text-gray-900"
+          >
+            Our Core Technology Stack
+          </Typography>
 
-        {/* SUBTEXT */}
-        <Typography className="text-center mt-6 text-neutral-600 leading-relaxed">
-          We leverage cutting-edge technologies to build a robust, secure, and
-          highly <br /> performant platform. Our infrastructure is designed for
-          reliability and scalability <br /> to meet the demands of modern
-          collaboration.
-        </Typography>
+          {/* SUBTEXT */}
+          <Typography className="text-center mt-10! text-neutral-600 opacity-80 leading-relaxed">
+            We leverage cutting-edge technologies to build a robust, secure, and
+            highly{" "}
+            <span className="hidden lg:inline">
+              <br />
+            </span>{" "}
+            performant platform. Our infrastructure is designed for reliability
+            and scalability{" "}
+            <span className="hidden lg:inline">
+              <br />
+            </span>{" "}
+            to meet the demands of modern collaboration.
+          </Typography>
 
-        {/* GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 md:mx-20">
-          {items.map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              // Hover + tap
-              whileHover={{
-                scale: 1.07,
-                y: -4,
-                boxShadow: "0px 12px 30px rgba(0,0,0,0.12)",
-              }}
-              whileTap={{ scale: 0.97 }}
-              // Floating animation
-              animate={{
-                y: [0, -3, 0],
-              }}
-              // ✔ Combine all transitions inside ONE object
-              transition={{
-                duration: 0.5,
-                ease: "easeOut",
-                delay: i * 0.1,
-                repeat: Infinity,
-                repeatType: "reverse",
-                repeatDelay: 2.5,
-              }}
-              className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 flex flex-col items-center text-center transition-all"
-            >
-              {/* ICON WRAPPER */}
-              <div className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-50 mb-4">
-                {item.icon}
-              </div>
-
-              <Typography
-                fontWeight="600"
-                className="text-gray-900 text-lg mb-2"
+          {/* GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 md:mx-20">
+            {items.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                whileHover={{
+                  scale: 1.07,
+                  y: -4,
+                  boxShadow: "0px 12px 30px rgba(0,0,0,0.12)",
+                }}
+                whileTap={{ scale: 0.97 }}
+                animate={{ y: [0, -3, 0] }}
+                transition={{
+                  duration: 0.5,
+                  ease: "easeOut",
+                  delay: i * 0.1,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  repeatDelay: 2.5,
+                }}
+                className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 flex flex-col items-center text-center transition-all"
               >
-                {item.title}
-              </Typography>
+                {/* ICON WRAPPER */}
+                <div className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-50 mb-4">
+                  {item.icon}
+                </div>
 
-              <Typography className="text-neutral-600 text-sm leading-relaxed">
-                {item.desc}
-              </Typography>
-            </motion.div>
-          ))}
-        </div>
-      </Box>
+                <Typography
+                  fontWeight="600"
+                  className="text-gray-900 text-lg mb-2"
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography className="text-neutral-600 text-sm leading-relaxed">
+                  {item.desc}
+                </Typography>
+              </motion.div>
+            ))}
+          </div>
+        </Box>
+      </motion.div>
     </>
   );
 };

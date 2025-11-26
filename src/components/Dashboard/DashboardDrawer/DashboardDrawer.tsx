@@ -38,7 +38,7 @@ const userMenu = [
   { label: "Home", icon: <Home />, path: "/" },
   { label: "Client Dashboard", icon: <DashboardIcon />, path: "/dashboard/user" },
   { label: "My Appointments", icon: <CalendarMonthIcon />, path: "/dashboard/user/appointments" },
-  { label: "Notifications", icon: <NotificationsIcon />, path: "/dashboard/user/notifications" },
+  // { label: "Notifications", icon: <NotificationsIcon />, path: "/dashboard/user/notifications" },
 ];
 
 const adminMenu = [
@@ -118,12 +118,12 @@ export default function DashboardDrawer({ children }: { children: React.ReactNod
       <div className="p-3">
         <Divider className="mb-2" />
         <List>
-          <ListItemButton className="hover:bg-gray-100 rounded-lg mb-1">
-            <ListItemIcon className="text-gray-500">
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItemButton>
+            {/* <ListItemButton className="hover:bg-gray-100 rounded-lg mb-1">
+              <ListItemIcon className="text-gray-500">
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton> */}
 
           <ListItemButton
             onClick={handleLogout}

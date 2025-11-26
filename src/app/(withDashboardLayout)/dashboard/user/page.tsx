@@ -24,18 +24,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-const upcoming = [
-  {
-    title: "Dr. Emily White — Dental Checkup",
-    date: "July 25, 2025 • 10:00 AM",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-  },
-  {
-    title: "Coach Maya Singh — Fitness Coaching",
-    date: "Aug 2, 2025 • 04:00 PM",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-];
+
 
 const notifications = [
   { text: "Your dental checkup with Dr. White is confirmed.", time: "2h ago" },

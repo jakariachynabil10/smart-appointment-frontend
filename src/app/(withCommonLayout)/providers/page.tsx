@@ -166,7 +166,7 @@ const Providers = () => {
                 <Link href={"/dashboard/user"}>
                   <Button
                     variant="contained"
-                    className="mt-5 rounded-full normal-case px-6 py-1.5 bg-blue-600 hover:bg-blue-700"
+                    className="mt-5! rounded-full normal-case px-6 py-1.5 bg-blue-600 hover:bg-blue-700"
                   >
                     Book Now
                   </Button>
