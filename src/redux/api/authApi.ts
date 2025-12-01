@@ -1,4 +1,4 @@
-import { TagTypes } from "../tag-types";
+
 import { baseApi } from "./baseApi";
 
 export const authApi = baseApi.injectEndpoints({
@@ -9,7 +9,6 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         data: loginData, // ✅ use 'data' for Axios
       }),
-      invalidatesTags: [TagTypes.admin, TagTypes.user, TagTypes.provider],
     }),
   }),
 });
