@@ -7,5 +7,5 @@ export const logout = (router: AppRouterInstance) => {
    localStorage.removeItem(authKey);
 //    deleteCookies([authKey, 'refreshToken']);
    router.push('/');
-   router.refresh();
+   window.location.reload();
 };
